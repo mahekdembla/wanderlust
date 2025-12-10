@@ -1,0 +1,148 @@
+<% layout ("/layouts/boilerplate") -%>
+    <script src="https://cdn.jsdelivr.net/npm/emoji-picker-element@latest"></script>
+
+
+    <link rel="stylesheet" href="/css/chat.css">
+
+    <div class="chat-wrapper">
+
+        <!-- CHAT HEADER  -->
+        <div class="chat-header">
+            <h4 class="chat-user">
+                <%= receiverUsername %>
+            </h4>
+            <small id="onlineStatus" class="online-status">● Offline</small>
+
+        </div>
+
+        <!-- CHAT MESSAGES -->
+        <div id="messages">
+            <% messages.forEach(m=> { %>
+                <% const isMine=String(m.sender._id)===String(currUser._id); %>
+                    <div class="<%= isMine ? 'my-msg' : 'their-msg' %>">
+                        <p>
+                            <%= m.message %>
+                        </p>
+                        <small class="timestamp">
+                            <%= new Date(m.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit" , minute: "2-digit"
+                                }) %>
+
+                                <% if (isMine) { %>
+                                    <% if (m.seen) { %>
+                                        ✓✓
+                                        <% } else { %>
+                                            ✓
+                                            <% } %>
+                                                <% } %>
+                        </small>
+
+                    </div>
+                    <% }) %>
+        </div>
+
+        <!-- TYPING INDICATOR -->
+        <div id="typingIndicator" style="padding:8px 15px; font-style: italic; color: #555; display:none;">
+            User is typing...
+        </div>
+
+        <!-- INPUT AREA -->
+        <form id="chatForm">
+            <input type="text" id="msgInput" placeholder="Type a message..." autocomplete="off">
+            <button type="button" id="emojiBtn">😊</button>
+            <emoji-picker id="emojiPicker" style="display:none;"></emoji-picker>
+
+            <button class="send-btn">Send</button>
+        </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        const socket = io();
+
+        const roomId = "<%= listingId %>";
+        const sender = "<%= currUser._id %>";
+        const receiver = "<%= receiverId %>";
+        const receiverName = "<%= receiverUsername %>";
+
+        socket.emit("joinRoom", roomId);
+        socket.emit("userOnline", { roomId, sender });
+
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        /* ----------------------- SEND MESSAGE ------------------------ */
+        document.getElementById("chatForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById("msgInput").value.trim();
+            if (!msg) return;
+
+            socket.emit("sendMessage", { roomId, sender, receiver, message: msg });
+
+            document.getElementById("msgInput").value = "";
+
+            await fetch("/chat/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ listingId: roomId, sender, receiver, message: msg })
+            });
+        });
+
+        socket.on("receiveMessage", (data) => {
+            const div = document.createElement("div");
+            div.className = data.sender === sender ? "my-msg" : "their-msg";
+            div.innerHTML = `<p>${data.message}</p>`;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        /*  TYPING INDICATOR  */
+
+        let typingTimeout;
+
+        document.getElementById("msgInput").addEventListener("input", () => {
+            socket.emit("typing", { roomId, sender });
+
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.emit("stopTyping", { roomId, sender });
+            }, 1000);
+        });
+
+        socket.on("showTyping", (data) => {
+            if (data.sender !== sender) {
+                document.getElementById("typingIndicator").style.display = "block";
+            }
+        });
+
+        socket.on("hideTyping", () => {
+            document.getElementById("typingIndicator").style.display = "none";
+        });
+
+        /*ONLINE STATUS  */
+
+        socket.on("userOnlineStatus", (data) => {
+            if (data.userId === receiver) {
+                document.getElementById("onlineStatus").innerText = "● Online";
+                document.getElementById("onlineStatus").style.color = "green";
+            }
+        });
+
+        socket.on("userOfflineStatus", (data) => {
+            if (data.userId === receiver) {
+                document.getElementById("onlineStatus").innerText = "● Offline";
+                document.getElementById("onlineStatus").style.color = "gray";
+            }
+        });
+
+        // emoji javascript
+        document.getElementById("emojiBtn").addEventListener("click", () => {
+            const picker = document.getElementById("emojiPicker");
+            picker.style.display = picker.style.display === "none" ? "block" : "none";
+        });
+
+        document.getElementById("emojiPicker").addEventListener("emoji-click", (e) => {
+            document.getElementById("msgInput").value += e.detail.unicode;
+        });
+
+    </script>

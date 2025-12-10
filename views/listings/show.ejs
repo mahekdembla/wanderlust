@@ -16,6 +16,24 @@
       <p class="card-text">&#8377;<%= listing.price.toLocaleString("en-IN") %></p>
       <p class="card-text"><%= listing.location %></p>
       <p class="card-text"><%= listing.country %></p>
+      <% if (currUser) { %>
+
+    <% if(listing.owner._id.equals(currUser._id)) { %>
+        <!-- OWNER VIEW -->
+        <a href="/inbox" class="btn btn-primary mt-3">
+          💬 View Messages
+        </a>
+    <% } else { %>
+        <!-- USER VIEW -->
+        <a 
+          href="/chat/<%= listing._id %>/<%= listing.owner._id %>" 
+          class="btn btn-success mt-3">
+          💬 Chat with Host
+        </a>
+    <% } %>
+
+<% } %>
+
     </div>
   </div>
 

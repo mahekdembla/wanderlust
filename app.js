@@ -21,7 +21,9 @@ const User=require("./models/user.js");
 
 const listingRouter=require("./routes/listing.js");
 const reviewRouter =require("./routes/review.js");
-const userRouter=require("./routes/user.js")
+const userRouter=require("./routes/user.js");
+const chatRouter = require("./routes/chat.js");
+const inboxRouter = require("./routes/inbox.js");
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
@@ -39,6 +41,7 @@ async function main() {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); 
 app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
@@ -85,6 +88,8 @@ app.use((req,res,next)=>{
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
+app.use("/chat", chatRouter);
+app.use("/inbox", inboxRouter);
 
 app.all(/.*/ ,(req,res,next)=>{
     next(new ExpressError(404, "page Not Found"));
@@ -96,6 +101,44 @@ app.use((err, req, res, next) => {
    // res.status(statusCode).send(message);
 });
 
-app.listen(8080, () => {
-    console.log("Server  is Listening");
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+    console.log("user connected");
+
+    socket.on("joinRoom", (roomId) => {
+        socket.join(roomId);
+    });
+
+    socket.on("sendMessage", (data) => {
+        io.to(data.roomId).emit("receiveMessage", data);
+    });
+    socket.on("typing",(data)=>{
+        socket.to(data.roomId).emit("showTyping",data);
+    });
+    socket.on("stopTyping", data=>{
+        socket.to(data.roomId).emit("hideTyping",data);
+
+    });
+     /* ONLINE STATUS */
+    socket.on("userOfflineStatus", async (data) => {
+    if (data.userId === receiver) {
+        document.getElementById("onlineStatus").innerText =
+            "Last seen just now";
+    }
+});
+
+
+    socket.on("disconnect", async() => {
+        await User.findByIdAndUpdate(socket.userId, { lastSeen: new Date() });
+        io.emit("userOfflineStatus", { userId: socket.userId });
+    });
+
+});
+
+server.listen(8080, () => {
+    console.log("Server with Socket.io is running on port 8080");
 });
