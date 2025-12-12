@@ -21,14 +21,14 @@
     <% if(listing.owner._id.equals(currUser._id)) { %>
         <!-- OWNER VIEW -->
         <a href="/inbox" class="btn btn-primary mt-3">
-          💬 View Messages
+          View Messages
         </a>
     <% } else { %>
         <!-- USER VIEW -->
         <a 
           href="/chat/<%= listing._id %>/<%= listing.owner._id %>" 
           class="btn btn-success mt-3">
-          💬 Chat with Host
+           Chat with Host
         </a>
     <% } %>
 
@@ -115,7 +115,8 @@
 <div 
   id="map" 
   style="height: 400px; border-radius: 8px;"
-  data-coordinates='<%= listing.geometry ? JSON.stringify(listing.geometry.coordinates) : JSON.stringify([77.2090, 28.6139]) %>'
+  data-coordinates='<%= listing.geometry && listing.geometry.coordinates ? JSON.stringify(listing.geometry.coordinates) : "" %>'
+
 
   data-popup="<%= listing.location %>, <%= listing.country %>"
 ></div>

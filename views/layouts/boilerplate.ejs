@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <link href="/css/rating.css" rel="stylesheet" />
-    <!-- put this in your main layout head -->
+    
    <link
      rel="stylesheet"
      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -22,6 +22,29 @@
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
+    <script>
+        document.addEventListener("click", async (e) => {
+        
+            const heart = e.target.closest(".wishlist-icon");
+            if (!heart) return;
+        
+            const listingId = heart.dataset.id;
+        
+            let res = await fetch(`/wishlist/toggle/${listingId}`, {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            });
+        
+            let data = await res.json();
+        
+            if (data.saved) {
+                heart.innerHTML = `<i class="fa-solid fa-heart saved"></i>`;
+            } else {
+                heart.innerHTML = `<i class="fa-regular fa-heart"></i>`;
+            }
+        });
+        </script>
+        
 
 </head>
 

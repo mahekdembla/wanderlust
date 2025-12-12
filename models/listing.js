@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Review = require("./review.js");
 const { ref } = require("joi");
+const { text } = require("body-parser");
 const Schema = mongoose.Schema;
 
 const listingSchema = new Schema({
@@ -33,15 +34,15 @@ const listingSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-  geometry: {   // NEW FIELD
+  geometry: {   
     type: {
       type: String,
       enum: ['Point'],
-      required: true
+      required: false
     },
     coordinates: {
       type: [Number],
-      required: true
+      required: false
     }
   }
 });
@@ -51,7 +52,7 @@ listingSchema.post("findOneAndDelete", async (listing) => {
   }
 
 });
-
+listingSchema.index({title:"text", description:"text",location:"text", country:"text"});
 
 const Listing = mongoose.model("Listing", listingSchema);
 module.exports = Listing;

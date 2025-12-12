@@ -24,6 +24,7 @@ const reviewRouter =require("./routes/review.js");
 const userRouter=require("./routes/user.js");
 const chatRouter = require("./routes/chat.js");
 const inboxRouter = require("./routes/inbox.js");
+const searchRouter=require("./routes/search.js");
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
@@ -90,6 +91,7 @@ app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
 app.use("/chat", chatRouter);
 app.use("/inbox", inboxRouter);
+app.use("/search", searchRouter)
 
 app.all(/.*/ ,(req,res,next)=>{
     next(new ExpressError(404, "page Not Found"));

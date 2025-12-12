@@ -1,0 +1,35 @@
+<% layout("/layouts/boilerplate") %>
+
+<h2 class="mt-4"> Wishlist <i class="fa-solid fa-heart saved"></i></h2>
+
+<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+
+    <% if (listings.length === 0) { %>
+        <p>No saved listings yet.</p>
+    <% } %>
+
+    <% listings.forEach(listing => { %>
+
+        <div class="col mb-4">
+            <div class="card listing-card position-relative">
+
+               
+                <a href="/wishlist/toggle/<%= listing._id %>" class="wishlist-heart">
+                    <i class="fa-solid fa-heart saved"></i>
+                </a>
+
+                <a href="/listings/<%= listing._id %>" class="listing-link">
+                    <img src="<%= listing.image.url %>" class="card-img-top"
+                        style="height:20rem; object-fit:cover;">
+                </a>
+
+                <div class="card-body">
+                    <b><%= listing.title %></b><br>
+                    ₹ <%= listing.price.toLocaleString("en-IN") %> / night
+                </div>
+            </div>
+        </div>
+
+    <% }) %>
+
+</div>

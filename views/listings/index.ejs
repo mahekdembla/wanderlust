@@ -24,10 +24,12 @@
     .filter p {
         font-size: 0.8rem;
     }
-    .tax-info{
+
+    .tax-info {
         display: none;
     }
-    .tax-toggle{
+
+    .tax-toggle {
         border: 1px solid black;
         border-radius: 1rem;
         height: 3.25rem;
@@ -35,55 +37,36 @@
         margin-left: 2rem;
         display: flex;
         align-items: center;
+    }
 
+    .wishlist-heart {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        font-size: 1.8rem;
+        color: white;
+        text-shadow: 0 0 5px black;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .saved {
+        color: red !important;
     }
 </style>
 
 <div id="filters">
-    <div class="filter">
-        <div><i class="fa-solid fa-fire"></i></div>
-        <p>trending</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-bed"></i></div>
-        <p>Room</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-mountain-city"></i></div>
-        <p>Iconic Cities</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-mountain"></i></div>
-        <p>Mountains</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-brands fa-fort-awesome"></i></div>
-        <p>Castles</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-person-swimming"></i></div>
-        <p>Amazing pools</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-campground"></i></div>
-        <p>Camping</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-cow"></i></div>
-        <p>Farms</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-snowflake"></i></div>
-        <p>Arctic</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-igloo"></i></div>
-        <p>Domes</p>
-    </div>
-    <div class="filter">
-        <div><i class="fa-solid fa-ship"></i></div>
-        <p>Boats</p>
-    </div>
+    <div class="filter"><i class="fa-solid fa-fire"></i><p>trending</p></div>
+    <div class="filter"><i class="fa-solid fa-bed"></i><p>Room</p></div>
+    <div class="filter"><i class="fa-solid fa-mountain-city"></i><p>Iconic Cities</p></div>
+    <div class="filter"><i class="fa-solid fa-mountain"></i><p>Mountains</p></div>
+    <div class="filter"><i class="fa-brands fa-fort-awesome"></i><p>Castles</p></div>
+    <div class="filter"><i class="fa-solid fa-person-swimming"></i><p>Amazing pools</p></div>
+    <div class="filter"><i class="fa-solid fa-campground"></i><p>Camping</p></div>
+    <div class="filter"><i class="fa-solid fa-cow"></i><p>Farms</p></div>
+    <div class="filter"><i class="fa-solid fa-snowflake"></i><p>Arctic</p></div>
+    <div class="filter"><i class="fa-solid fa-igloo"></i><p>Domes</p></div>
+    <div class="filter"><i class="fa-solid fa-ship"></i><p>Boats</p></div>
 
     <div class="tax-toggle">
         <div class="form-check-reverse form-switch">
@@ -94,36 +77,58 @@
 </div>
 
 <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
-    <% for (let listing of allListings) { %>
-        <a href="/listings/<%= listing._id %>" class="listing-link">
-            <div class="card col listing-card">
-                <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
 
-                <div class="card-img-overlay">
-                </div>
+    <% allListings.forEach(listing => { %>
+
+        <div class="col mb-4">
+            <div class="card listing-card position-relative">
+
+                
+                <% if (currUser && currUser.savedListings.some(id => String(id) === String(listing._id))) { %>
+
+                    <i class="fa-solid fa-heart wishlist-heart saved" data-id="<%= listing._id %>"></i>
+                <% } else { %>
+                    <i class="fa-regular fa-heart wishlist-heart" data-id="<%= listing._id %>"></i>
+                <% } %>
+
+                <a href="/listings/<%= listing._id %>" class="listing-link">
+                    <img src="<%= listing.image.url %>" class="card-img-top" style="height:20rem;">
+                </a>
 
                 <div class="card-body">
-                    <p class="card-text">
-                        <b><%= listing.title %></b><br>
-                        &#8377; <%= listing.price.toLocaleString("en-IN") %> /night
-                        <i class="tax-info"> &nbsp; &nbsp; +18% GST</i>
-                    </p>
+                    <b><%= listing.title %></b><br>
+                    ₹ <%= listing.price.toLocaleString("en-IN") %> / night
+                    <i class="tax-info"> +18% GST</i>
                 </div>
             </div>
-        </a>
-    <% } %>
+        </div>
+
+    <% }) %>
+
 </div>
+
 <script>
-    let taxSwitch=document.getElementById("flexswitchCheckDefault");
-    taxSwitch.addEventListener("click", ()=>{
-        let taxInfo=document.getElementsByClassName("tax-info");
-        for(info of taxInfo){
-            if(info.style.display!="inline"){
-                info.style.display="inline";
-            }else{
-                info.style.display="none";
-            }
-            
-        }
-    })
+    // TAX TOGGLE
+    document.getElementById("flexswitchCheckDefault")
+        .addEventListener("click", () => {
+            document.querySelectorAll(".tax-info").forEach(x => {
+                x.style.display = x.style.display === "inline" ? "none" : "inline";
+            });
+        });
+
+    // Wishlist Toggle
+    document.querySelectorAll(".wishlist-heart").forEach(icon => {
+        icon.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            const id = icon.dataset.id;
+
+            await fetch(`/wishlist/toggle/${id}`, { method: "POST" });
+
+            icon.classList.toggle("fa-solid");
+            icon.classList.toggle("fa-regular");
+            icon.classList.toggle("saved");
+        });
+    });
 </script>

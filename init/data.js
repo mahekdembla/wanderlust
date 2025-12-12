@@ -347,6 +347,73 @@ const sampleListings = [
     location: "Costa Rica",
     country: "Costa Rica",
   },
+  {
+  title: "Sea View Apartment",
+  description: "Beautiful sea-facing apartment in the heart of Mumbai.",
+  image: {
+    filename: "listingimage",
+    url: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800"
+  },
+  price: 2200,
+  location: "Mumbai",
+  country: "India"
+  },
+  {
+  title: "Goa Beach Hut",
+  description: "Relax in a wooden beach hut just seconds away from the ocean.",
+  image: {
+    filename: "listingimage",
+    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
+  },
+  price: 1500,
+  location: "Goa",
+  country: "India"
+ },
+ {
+  title: "Snow Cabin in Manali",
+  description: "Cozy snow cabin surrounded by the Himalayan mountains.",
+  image: {
+    filename: "listingimage",
+    url: "https://images.unsplash.com/photo-1519817650390-64a93db51150?w=800"
+  },
+  price: 1800,
+  location: "Manali",
+  country: "India"
+ },
+ {
+  title: "Student PG Accommodation",
+  description: "Affordable PG with food, WiFi & study space near Electronic City.",
+  image: {
+    filename: "listingimage",
+    url: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=800"
+  },
+  price: 700,
+  location: "Bengaluru",
+  country: "India"
+ },
+ {
+  title: "Private Room in South Delhi",
+  description: "Modern room with AC, WiFi, kitchen access and balcony.",
+  image: {
+    filename: "listingimage",
+    url: "https://images.unsplash.com/photo-1560448075-bb4c88c52a3a?w=800"
+  },
+  price: 1200,
+  location: "New Delhi",
+  country: "India"
+ },
+ {
+  title: "Heritage Villa Stay",
+  description: "Live like royalty in a traditional Rajasthani haveli.",
+  image: {
+    filename: "listingimage",
+    url: "https://images.unsplash.com/photo-1544986581-efac024faf62?w=800"
+  },
+  price: 2000,
+  location: "Jaipur",
+  country: "India"
+ }
+
 ];
 
 module.exports = { data: sampleListings };

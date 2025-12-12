@@ -1,0 +1,69 @@
+<% layout("/layouts/boilerplate") %>
+<style>
+    .wishlist-heart {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        font-size: 1.8rem;
+        color: white;
+        text-shadow: 0 0 5px black;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .saved {
+        color: red !important;
+        text-shadow: none !important;
+    }
+</style>
+
+<div class="container mt-4">
+    <h2>Search Results</h2>
+    <p>Total: <%= listings.length %> listing found</p>
+
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+
+        <% listings.forEach(listing => { %>
+
+        <div class="col mb-4">
+            <div class="card listing-card position-relative">
+
+                <% if (currUser && currUser.savedListings.some(id => String(id) === String(listing._id))) { %>
+
+                    <i class="fa-solid fa-heart wishlist-heart saved" data-id="<%= listing._id %>"></i>
+                <% } else { %>
+                    <i class="fa-regular fa-heart wishlist-heart" data-id="<%= listing._id %>"></i>
+                <% } %>
+
+                <a href="/listings/<%= listing._id %>" class="listing-link">
+                    <img src="<%= listing.image.url %>" class="card-img-top" style="height:20rem;">
+                </a>
+
+                <div class="card-body">
+                    <b><%= listing.title %></b><br>
+                    ₹ <%= listing.price.toLocaleString("en-IN") %> / night
+                </div>
+            </div>
+        </div>
+
+        <% }) %>
+
+    </div>
+</div>
+
+<script>
+document.querySelectorAll(".wishlist-heart").forEach(icon => {
+    icon.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const id = icon.dataset.id;
+
+        await fetch(`/wishlist/toggle/${id}`, { method: "POST" });
+
+        icon.classList.toggle("fa-solid");
+        icon.classList.toggle("fa-regular");
+        icon.classList.toggle("saved");
+    });
+});
+</script>

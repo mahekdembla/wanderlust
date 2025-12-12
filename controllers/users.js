@@ -1,5 +1,6 @@
 const { model } = require("mongoose");
 const User=require("../models/user");
+const { any } = require("joi");
 
 module.exports.renderSignupForm= (req, res) => {
     res.render("users/signup.ejs");
@@ -42,3 +43,4 @@ module.exports.logout=(req, res) => {
         res.redirect("/listings");
     });
 }
+
