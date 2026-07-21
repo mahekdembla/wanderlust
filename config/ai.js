@@ -3,7 +3,7 @@
  */
 module.exports = {
     PRIMARY_MODEL: process.env.GEMINI_MODEL || "gemini-2.0-flash",
-    FALLBACK_MODELS: ["gemini-flash-latest", "gemini-2.5-flash"],
+    FALLBACK_MODELS: ["gemini-3.5-flash", "gemini-flash-latest", "gemini-2.0-flash-lite"],
     TEMPERATURE: 0.7,
     MAX_TOKENS: 1024,
     TIMEOUT: 10000, // 10 seconds timeout
