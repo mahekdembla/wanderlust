@@ -54,7 +54,14 @@
       <div class="mb-3">
         <label class="form-label fw-semibold">Current Gallery (Select to delete)</label>
         <div class="uploaded-images-preview-grid">
-          <% images.forEach((img, idx) => { %>
+          <% 
+          const imagesList = (typeof images !== 'undefined' && images && images.length > 0) 
+            ? images 
+            : (listing.images && listing.images.length > 0 
+              ? listing.images 
+              : (listing.image && listing.image.url ? [listing.image] : [])); 
+          %>
+          <% imagesList.forEach((img, idx) => { %>
             <div id="img-card-<%= idx %>" class="uploaded-image-card shadow-sm position-relative">
               <img src="<%= img.url %>" alt="listing image">
               <!-- Overlay toggle delete button -->

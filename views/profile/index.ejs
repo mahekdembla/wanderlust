@@ -100,28 +100,29 @@
                 <div class="tab-content" id="statsTabsContent">
                     <!-- Guest Statistics Tab -->
                     <div class="tab-pane fade show active" id="guest-tab-pane" role="tabpanel" aria-labelledby="guest-tab" tabindex="0">
+                        <% const guestData = (typeof guestStats !== 'undefined' && guestStats) ? guestStats : { tripsCompleted: 0, wishlistCount: 0, totalSpent: 0 }; %>
                         <div class="row row-cols-md-3 row-cols-1 g-3">
                             <div class="col">
                                 <div class="stat-box p-3 text-center">
-                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.tripsCompleted %></h2>
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestData.tripsCompleted %></h2>
                                     <small class="text-muted">Trips Completed</small>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-box p-3 text-center">
-                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.wishlistCount %></h2>
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestData.wishlistCount || 0 %></h2>
                                     <small class="text-muted">Wishlist Items</small>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-box p-3 text-center">
-                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.reviewsWritten %></h2>
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestData.reviewsWritten || 0 %></h2>
                                     <small class="text-muted">Reviews Written</small>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="stat-box p-3 text-center">
-                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.citiesVisited %></h2>
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestData.citiesVisited || 0 %></h2>
                                     <small class="text-muted">Cities Visited</small>
                                 </div>
                             </div>
@@ -136,7 +137,8 @@
 
                     <!-- Host Statistics Tab -->
                     <div class="tab-pane fade" id="host-tab-pane" role="tabpanel" aria-labelledby="host-tab" tabindex="0">
-                        <% if (hostStats.totalListings === 0) { %>
+                        <% const hostData = (typeof hostStats !== 'undefined' && hostStats) ? hostStats : { totalListings: 0, totalBookings: 0, totalRevenue: 0, avgRating: 0 }; %>
+                        <% if (hostData.totalListings === 0) { %>
                             <div class="text-center py-4">
                                 <p class="text-muted mb-3">You don't own any listings yet.</p>
                                 <a href="/listings/new" class="btn btn-danger btn-sm rounded-pill px-4">Airbnb Your Home</a>
@@ -145,7 +147,7 @@
                             <div class="row row-cols-md-3 row-cols-1 g-3">
                                 <div class="col">
                                     <div class="stat-box p-3 text-center">
-                                        <h2 class="fw-bold text-dark mb-0"><%= hostStats.totalListings %></h2>
+                                        <h2 class="fw-bold text-dark mb-0"><%= hostData.totalListings %></h2>
                                         <small class="text-muted">Active Listings</small>
                                     </div>
                                 </div>
