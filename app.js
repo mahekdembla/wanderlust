@@ -198,7 +198,8 @@ io.on("connection", (socket) => {
     });
 
 });
+const PORT = process.env.PORT || 8080;
 
-server.listen(8080, () => {
-    console.log("Server with Socket.io is running on port 8080");
+server.listen(PORT, () => {
+    console.log(`🚀 Server with Socket.io is running on port ${PORT}`);
 });
