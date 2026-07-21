@@ -11,6 +11,15 @@
       class="needs-validation"
       enctype="multipart/form-data"
     >
+      <input type="hidden" name="listing[listingType]" value="<%= listing.listingType || 'stay' %>">
+      <% if (listing.listingType === "pg" && listing.pgDetails) { %>
+        <input type="hidden" name="listing[pgDetails][sharingType]" value="<%= listing.pgDetails.sharingType %>">
+        <input type="hidden" name="listing[pgDetails][genderAllowed]" value="<%= listing.pgDetails.genderAllowed %>">
+        <input type="hidden" name="listing[pgDetails][monthlyRent]" value="<%= listing.pgDetails.monthlyRent %>">
+        <input type="hidden" name="listing[pgDetails][deposit]" value="<%= listing.pgDetails.deposit %>">
+        <input type="hidden" name="listing[pgDetails][foodIncluded]" value="<%= listing.pgDetails.foodIncluded %>">
+      <% } %>
+
       <!-- Title -->
       <div class="mb-3">
         <label for="title" class="form-label">Title</label>
@@ -32,27 +41,78 @@
         <textarea
           name="listing[description]"
           class="form-control"
+          rows="5"
           required
         ><%= listing.description %></textarea>
         <div class="valid-feedback">Please enter a short description</div>
+        <button type="button" id="ai-desc-btn" class="btn btn-outline-danger btn-sm mt-2 rounded-pill"><i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generate Description with AI</button>
       </div>
 
+      <link rel="stylesheet" href="/css/gallery.css">
+
+      <!-- Existing Images Gallery -->
       <div class="mb-3">
-        Original Listing Image <br/>
-        <img src="<%= originalImageUrl %>" />
+        <label class="form-label fw-semibold">Current Gallery (Select to delete)</label>
+        <div class="uploaded-images-preview-grid">
+          <% images.forEach((img, idx) => { %>
+            <div id="img-card-<%= idx %>" class="uploaded-image-card shadow-sm position-relative">
+              <img src="<%= img.url %>" alt="listing image">
+              <!-- Overlay toggle delete button -->
+              <button type="button" class="delete-image-overlay-btn" onclick="toggleImageDelete('<%= img.filename %>', '<%= idx %>')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+              <!-- Hidden checkbox for delete array -->
+              <input type="checkbox" name="deleteImages[]" value="<%= img.filename %>" id="delete-check-<%= img.filename %>" class="d-none">
+            </div>
+          <% }) %>
+        </div>
       </div>
 
-      <!-- Image URL -->
+      <!-- Add New Images -->
       <div class="mb-3">
-        <label for="image" class="form-label">Upload New Image</label>
-        <input
-          name="listing[image]"
-          type="file"
-          class="form-control"
-  
-        />
-       
+        <label for="images-upload-input" class="form-label fw-semibold">Upload Additional Images</label>
+        <input name="listing[images]" type="file" id="images-upload-input" class="form-control" multiple accept="image/*">
+        <small class="form-text text-muted d-block mt-1"><i class="fa-solid fa-circle-info text-primary me-1"></i> Tip: Hold <strong>Ctrl</strong> (Windows) or <strong>Cmd</strong> (Mac) in the file picker dialog to select and upload multiple photos at once.</small>
+        <!-- Previews grid for new uploads -->
+        <div id="image-preview-container" class="uploaded-images-preview-grid d-none"></div>
       </div>
+
+      <script>
+        function toggleImageDelete(filename, index) {
+            const checkbox = document.getElementById(`delete-check-${filename}`);
+            const card = document.getElementById(`img-card-${index}`);
+            if (checkbox && card) {
+                checkbox.checked = !checkbox.checked;
+                if (checkbox.checked) {
+                    card.classList.add("image-card-to-delete");
+                } else {
+                    card.classList.remove("image-card-to-delete");
+                }
+            }
+        }
+
+        document.getElementById("images-upload-input").addEventListener("change", function(e) {
+            const container = document.getElementById("image-preview-container");
+            container.innerHTML = "";
+            const files = e.target.files;
+            if (files.length > 0) {
+                container.classList.remove("d-none");
+                for (let i = 0; i < Math.min(files.length, 10); i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const div = document.createElement("div");
+                        div.className = "uploaded-image-card shadow-sm";
+                        div.innerHTML = `<img src="${event.target.result}" alt="preview">`;
+                        container.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } else {
+                container.classList.add("d-none");
+            }
+        });
+      </script>
 
       <!-- Price and Country -->
       <div class="row">
@@ -66,6 +126,8 @@
             required
           />
           <div class="invalid-feedback">Please enter a price</div>
+          <button type="button" id="ai-price-btn" class="btn btn-outline-danger btn-sm mt-2 rounded-pill" data-id="<%= listing._id %>"><i class="fa-solid fa-wand-magic-sparkles me-1"></i> Suggest Price with AI</button>
+          <div id="ai-price-feedback" class="small mt-2 text-muted d-none p-3 border rounded-3 bg-light" style="font-size: 0.8rem; max-height: 200px; overflow-y: auto;"></div>
         </div>
 
         <div class="mb-3 col-md-8">
@@ -99,3 +161,76 @@
     </form>
   </div>
 </div>
+
+<script>
+    // AI Description generator
+    const aiDescBtn = document.getElementById("ai-desc-btn");
+    if (aiDescBtn) {
+        aiDescBtn.addEventListener("click", async () => {
+            const title = document.querySelector('input[name="listing[title]"]').value.trim();
+            const location = document.querySelector('input[name="listing[location]"]').value.trim();
+            const price = document.querySelector('input[name="listing[price]"]')?.value || 0;
+            const descArea = document.querySelector('textarea[name="listing[description]"]');
+            
+            if (!title || !location) {
+                alert("Please fill in Title and Location first so AI has enough context!");
+                return;
+            }
+            
+            aiDescBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Writing description...`;
+            try {
+                const res = await fetch("/ai/property-description", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, location, price, amenities: [] })
+                });
+                const data = await res.json();
+                if (data.success && data.description) {
+                    descArea.value = data.description;
+                    aiDescBtn.innerHTML = `<i class="fa-solid fa-check me-1"></i> Regenerate with AI`;
+                } else {
+                    throw new Error("Failed to generate description");
+                }
+            } catch (err) {
+                alert("Could not contact description generator service.");
+                aiDescBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generate Description with AI`;
+            }
+        });
+    }
+
+    // AI Price suggestions
+    const aiPriceBtn = document.getElementById("ai-price-btn");
+    if (aiPriceBtn) {
+        aiPriceBtn.addEventListener("click", async () => {
+            const listingId = aiPriceBtn.dataset.id;
+            const feedback = document.getElementById("ai-price-feedback");
+            
+            if (!listingId) {
+                alert("Pricing suggestions require a saved listing.");
+                return;
+            }
+            
+            feedback.classList.remove("d-none");
+            feedback.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Querying market pricing suggestions...`;
+            
+            try {
+                const res = await fetch("/ai/price", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ listingId })
+                });
+                const data = await res.json();
+                if (data.success && data.suggestion) {
+                    let formatted = data.suggestion
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\n/g, '<br>');
+                    feedback.innerHTML = formatted;
+                } else {
+                    throw new Error("Failed to suggest price");
+                }
+            } catch (err) {
+                feedback.innerHTML = `<span class="text-danger">Failed to gather recommendations.</span>`;
+            }
+        });
+    }
+</script>

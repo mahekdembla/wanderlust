@@ -1,0 +1,78 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="row mt-4">
+    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+        <h2 class="mb-4">My Bookings</h2>
+
+        <% if(bookings.length === 0){ %>
+            <div class="alert alert-info" role="alert">
+                You haven't booked anything yet. <a href="/listings" class="alert-link">Explore stays now!</a>
+            </div>
+        <% } %>
+
+        <% bookings.forEach(booking => { 
+            if (!booking.listing) return;
+            const imgUrl = (booking.listing.images && booking.listing.images.length > 0) ? booking.listing.images[0].url : (booking.listing.image ? booking.listing.image.url : 'https://media.cntraveler.com/photos/5d112d50c4d7bd806dbc00a4/16:9/w_2239,h_1259,c_limit/airbnb%20luxe.jpg');
+        %>
+            <div class="card mb-4 shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="<%= imgUrl %>" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 200px;" alt="<%= booking.listing.title %>">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body p-4 d-flex flex-column justify-content-between h-100">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h4 class="card-title mb-0"><%= booking.listing.title %></h4>
+                                    <% if(booking.status === "pending"){ %>
+                                        <span class="badge bg-warning text-dark px-3 py-2">Pending</span>
+                                    <% } else if(booking.status === "approved"){ %>
+                                        <span class="badge bg-success px-3 py-2">Approved</span>
+                                    <% } else { %>
+                                        <span class="badge bg-danger px-3 py-2">Rejected</span>
+                                    <% } %>
+                                </div>
+                                <p class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> <%= booking.listing.location %>, <%= booking.listing.country %></p>
+                                
+                                <div class="row mt-3 mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block font-monospace">CHECK-IN</small>
+                                        <strong><%= new Date(booking.checkIn).toDateString() %></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block font-monospace">CHECK-OUT</small>
+                                        <strong><%= new Date(booking.checkOut).toDateString() %></strong>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block font-monospace">GUESTS</small>
+                                        <strong><%= booking.guests %> <%= booking.guests === 1 ? 'Guest' : 'Guests' %></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block font-monospace">BOOKED ON</small>
+                                        <strong><%= new Date(booking.createdAt).toLocaleDateString("en-IN") %></strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                <div>
+                                    <span class="text-muted">Total Price</span>
+                                    <h4 class="mb-0 text-dark">₹<%= booking.totalPrice.toLocaleString("en-IN") %></h4>
+                                </div>
+                                <% if(booking.status === "approved" && booking.approvedAt){ %>
+                                    <div class="text-end">
+                                        <small class="text-success d-block"><i class="fa-solid fa-circle-check"></i> Approved on</small>
+                                        <small class="text-muted"><strong><%= new Date(booking.approvedAt).toLocaleDateString("en-IN") %></strong></small>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>

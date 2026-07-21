@@ -1,0 +1,122 @@
+<% layout("/layouts/boilerplate") %>
+
+    <link rel="stylesheet" href="/css/profile.css">
+
+    <div class="row mt-4 mb-5">
+        <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1 col-12">
+            <div class="card profile-card p-4 shadow-sm border-0">
+                <h3 class="fw-bold mb-4 border-bottom pb-2 text-dark">Edit Profile</h3>
+
+                <form action="/profile?_method=PUT" method="POST" enctype="multipart/form-data" novalidate
+                    class="needs-validation">
+                    <!-- Avatar image upload section -->
+                    <div class="text-center mb-4">
+                        <div class="profile-avatar-container mb-2">
+                            <img id="avatarPreview"
+                                src="<%= (user.avatar && user.avatar.url) ? user.avatar.url : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=250&q=80' %>"
+                                alt="avatar" class="profile-avatar">
+                            <label for="avatarUpload" class="avatar-upload-label" title="Upload New Avatar">
+                                <i class="fa-solid fa-camera"></i>
+                            </label>
+                            <input type="file" id="avatarUpload" name="profile[avatar]" class="d-none" accept="image/*"
+                                onchange="previewFile()">
+                        </div>
+                        <small class="text-muted">Click the camera button to upload a new profile picture.</small>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Bio -->
+                        <div class="col-12">
+                            <label for="bio" class="form-label fw-semibold">Bio</label>
+                            <textarea id="bio" name="profile[bio]" class="form-control" rows="4"
+                                placeholder="Tell us about yourself..."><%= user.bio %></textarea>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="col-md-6 col-12">
+                            <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                            <input type="tel" id="phone" name="profile[phone]" class="form-control"
+                                value="<%= user.phone %>" placeholder="+91 9876543210">
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="col-md-6 col-12">
+                            <label for="gender" class="form-label fw-semibold">Gender</label>
+                            <select id="gender" name="profile[gender]" class="form-select">
+                                <option value="" <%=user.gender==='' ? 'selected' : '' %>>Prefer not to say</option>
+                                <option value="Male" <%=user.gender==='Male' ? 'selected' : '' %>>Male</option>
+                                <option value="Female" <%=user.gender==='Female' ? 'selected' : '' %>>Female</option>
+                                <option value="Other" <%=user.gender==='Other' ? 'selected' : '' %>>Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="col-md-6 col-12">
+                            <label for="dob" class="form-label fw-semibold">Date of Birth</label>
+                            <input type="date" id="dob" name="profile[dob]" class="form-control"
+                                value="<%= user.dob ? new Date(user.dob).toISOString().split('T')[0] : '' %>">
+                        </div>
+
+                        <!-- Languages -->
+                        <div class="col-md-6 col-12">
+                            <label for="languages" class="form-label fw-semibold">Languages spoken</label>
+                            <input type="text" id="languages" name="profile[languages]" class="form-control"
+                                value="<%= user.languages ? user.languages.join(', ') : '' %>"
+                                placeholder="English, Hindi, Spanish">
+                            <small class="text-muted">Separate multiple languages with commas.</small>
+                        </div>
+
+                        <!-- City -->
+                        <div class="col-md-6 col-12">
+                            <label for="city" class="form-label fw-semibold">City</label>
+                            <input type="text" id="city" name="profile[city]" class="form-control"
+                                value="<%= user.city %>" placeholder="Mumbai">
+                        </div>
+
+                        <!-- Country -->
+                        <div class="col-md-6 col-12">
+                            <label for="country" class="form-label fw-semibold">Country</label>
+                            <input type="text" id="country" name="profile[country]" class="form-control"
+                                value="<%= user.country %>" placeholder="India">
+                        </div>
+
+                        <!-- Profession -->
+                        <div class="col-md-6 col-12">
+                            <label for="profession" class="form-label fw-semibold">Profession</label>
+                            <input type="text" id="profession" name="profile[profession]" class="form-control"
+                                value="<%= user.profession %>" placeholder="Software Engineer">
+                        </div>
+
+                        <!-- College -->
+                        <div class="col-md-6 col-12">
+                            <label for="college" class="form-label fw-semibold">College / University</label>
+                            <input type="text" id="college" name="profile[college]" class="form-control"
+                                value="<%= user.college %>" placeholder="IIT Bombay">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3 mt-4 border-top pt-3">
+                        <a href="/profile" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Live preview of uploaded avatar file before form submit
+        function previewFile() {
+            const preview = document.getElementById('avatarPreview');
+            const file = document.getElementById('avatarUpload').files[0];
+            const reader = new FileReader();
+
+            reader.addEventListener("load", () => {
+                preview.src = reader.result;
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>

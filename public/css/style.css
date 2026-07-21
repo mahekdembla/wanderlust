@@ -51,26 +51,54 @@ body {
     text-align: center;
 }
 /* cards */
-.listing-card{
+.listing-card {
     border: none !important;
-    margin-bottom: 2rem;
-
+    border-radius: 1rem !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100% !important;
+    background-color: #fff;
+    margin-bottom: 0;
 }
 
-.card-img-top{
-    border-radius: 1rem !important;
+.card-img-top {
+    height: 15rem !important;
     width: 100% !important;
     object-fit: cover !important;
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
 }
-.card-body{
-    padding: 0;
+
+.listing-card .card-body {
+    padding: 0.85rem 1rem 1rem 1rem !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
 }
-.card-text p{
-    font-weight:400 !important;
+
+.listing-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.listing-link{
+
+.listing-card .card-text {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.listing-link {
     text-decoration: none;
-    
 }
 /* card-effects */
 

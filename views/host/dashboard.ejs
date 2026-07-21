@@ -1,0 +1,231 @@
+<% layout("/layouts/boilerplate") %>
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="stylesheet" href="/css/dashboard.css">
+
+<div class="container dashboard-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="mb-1 text-dark fw-bold">Host Dashboard</h2>
+            <p class="text-muted mb-0">Manage listings, analyze bookings, and track your revenue growth.</p>
+        </div>
+        <a href="/listings/new" class="btn btn-danger px-4 py-2 rounded-pill"><i class="fa-solid fa-plus me-1"></i> New Listing</a>
+    </div>
+
+    <% if (listings.length === 0) { %>
+        <!-- Empty listings state warning -->
+        <div class="card no-listings-card text-center shadow-sm py-5 my-4">
+            <div class="card-body">
+                <i class="fa-solid fa-house-chimney-user fs-1 text-muted mb-3 d-block"></i>
+                <h4 class="fw-bold text-dark">You haven't created any listings yet</h4>
+                <p class="text-muted mb-4">Start sharing your space with travelers from around the world and launch your rental business today.</p>
+                <a href="/listings/new" class="btn btn-danger btn-lg px-5 py-2 rounded-pill">Airbnb Your Home</a>
+            </div>
+        </div>
+    <% } else { %>
+        <!-- KPI METRICS SUMMARY CARDS -->
+        <div class="row row-cols-lg-4 row-cols-md-2 row-cols-1 g-4 mb-4">
+            <!-- 1. Total Revenue Card -->
+            <div class="col">
+                <div class="card kpi-card h-100 p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-success bg-opacity-10 text-success me-3">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold d-block">Total Revenue</span>
+                            <h3 class="mb-0 fw-bold mt-1">₹<%= kpis.totalRevenue.toLocaleString("en-IN") %></h3>
+                            <small class="trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Approved bookings</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Occupancy Rate Card -->
+            <div class="col">
+                <div class="card kpi-card h-100 p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-primary bg-opacity-10 text-primary me-3">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold d-block">Occupancy Rate</span>
+                            <h3 class="mb-0 fw-bold mt-1"><%= kpis.occupancyRate %>%</h3>
+                            <small class="trend-neutral"><i class="fa-solid fa-calendar-days"></i> Annualized rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Pending Requests Card -->
+            <div class="col">
+                <div class="card kpi-card h-100 p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-warning bg-opacity-10 text-warning me-3">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold d-block">Pending Requests</span>
+                            <h3 class="mb-0 fw-bold mt-1"><%= kpis.pendingBookings %></h3>
+                            <small class="<%= kpis.pendingBookings > 0 ? 'trend-up' : 'trend-neutral' %>">
+                                <i class="fa-solid fa-circle-exclamation"></i> Action required
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Average Rating Card -->
+            <div class="col">
+                <div class="card kpi-card h-100 p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-info bg-opacity-10 text-info me-3">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold d-block">Average Rating</span>
+                            <h3 class="mb-0 fw-bold mt-1"><%= kpis.avgRating %> ★</h3>
+                            <small class="trend-neutral"><i class="fa-solid fa-comments"></i> <%= kpis.totalReviews %> Reviews total</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK ACTION SHORTCUTS BUTTONS -->
+        <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 bg-light">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-wand-magic-sparkles me-1 text-primary"></i> Quick Actions</h5>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="/listings/new" class="btn btn-white border bg-white quick-action-btn flex-grow-1 text-start"><i class="fa-solid fa-plus text-danger me-2"></i> Add Listing</a>
+                <a href="/listings" class="btn btn-white border bg-white quick-action-btn flex-grow-1 text-start"><i class="fa-solid fa-house text-primary me-2"></i> View Listings</a>
+                <a href="/owner/bookings" class="btn btn-white border bg-white quick-action-btn flex-grow-1 text-start"><i class="fa-solid fa-calendar-check text-success me-2"></i> Booking Requests</a>
+                <a href="/notifications" class="btn btn-white border bg-white quick-action-btn flex-grow-1 text-start"><i class="fa-solid fa-bell text-warning me-2"></i> Notifications</a>
+                <a href="/inbox" class="btn btn-white border bg-white quick-action-btn flex-grow-1 text-start"><i class="fa-solid fa-message text-info me-2"></i> Messages</a>
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="row g-4 mb-4">
+            <!-- Line Chart: Monthly Revenue -->
+            <div class="col-lg-8 col-12">
+                <div class="card chart-card h-100">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-chart-line text-danger me-2"></i> Monthly Revenue Trend</h5>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="revenueChart" data-chart-data='<%= JSON.stringify(chartsData.monthlyRevenue) %>'></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie Chart: Booking Status -->
+            <div class="col-lg-4 col-12">
+                <div class="card chart-card h-100">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-chart-pie text-warning me-2"></i> Booking Status Distribution</h5>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="statusChart" data-chart-data='<%= JSON.stringify(chartsData.bookingStatus) %>'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Bar Chart: Bookings per month -->
+            <div class="col-lg-6 col-12">
+                <div class="card chart-card h-100">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-chart-bar text-primary me-2"></i> Bookings Volume Per Month</h5>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="bookingsChart" data-chart-data='<%= JSON.stringify(chartsData.bookingsPerMonth) %>'></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horizontal Bar: Ratings Distribution -->
+            <div class="col-lg-6 col-12">
+                <div class="card chart-card h-100">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-star-half-stroke text-warning me-2"></i> Review Ratings Distribution</h5>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="ratingsChart" data-chart-data='<%= JSON.stringify(chartsData.ratingsDistribution) %>'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RECENT ACTIVITY TABLES -->
+        <div class="row g-4">
+            <!-- Recent Bookings Requests -->
+            <div class="col-lg-6 col-12">
+                <div class="card activity-list-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-clock-rotate-left text-success me-2"></i> Recent Booking Requests</h5>
+                        <a href="/owner/bookings" class="text-decoration-none small fw-bold">View all</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle small mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Guest</th>
+                                    <th>Listing</th>
+                                    <th>Dates</th>
+                                    <th>Payout</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (recentRequests.length === 0) { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-3 text-muted">No booking requests found.</td>
+                                    </tr>
+                                <% } %>
+                                <% recentRequests.forEach(request => { %>
+                                    <tr>
+                                        <td><strong>@<%= request.guest.username %></strong></td>
+                                        <td><span class="text-truncate d-inline-block" style="max-width: 120px;"><%= request.listing.title %></span></td>
+                                        <td><%= new Date(request.checkIn).toLocaleDateString("en-IN", {month: "short", day: "numeric"}) %> - <%= new Date(request.checkOut).toLocaleDateString("en-IN", {month: "short", day: "numeric"}) %></td>
+                                        <td class="text-success fw-bold">₹<%= request.totalPrice.toLocaleString("en-IN") %></td>
+                                        <td>
+                                            <% if (request.status === 'pending') { %>
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            <% } else if (request.status === 'approved') { %>
+                                                <span class="badge bg-success">Approved</span>
+                                            <% } else { %>
+                                                <span class="badge bg-danger">Rejected</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reviews & Ratings -->
+            <div class="col-lg-6 col-12">
+                <div class="card activity-list-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-comments text-info me-2"></i> Recent Reviews</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <% if (recentReviews.length === 0) { %>
+                            <div class="text-center py-4 text-muted small">No reviews received yet.</div>
+                        <% } %>
+                        <% recentReviews.forEach(review => { %>
+                            <div class="list-group-item py-3 px-0 border-bottom border-light">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <strong class="small text-dark">@<%= review.author.username %></strong>
+                                    <span class="text-warning small"><%= "★".repeat(review.rating) %><%= "☆".repeat(5-review.rating) %></span>
+                                </div>
+                                <p class="mb-0 text-muted small text-wrap"><%= review.comment %></p>
+                                <small class="text-muted font-monospace" style="font-size: 0.7rem;"><%= new Date(review.createdAt).toLocaleDateString("en-IN") %></small>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<!-- Load Dashboard Charts rendering client scripts -->
+<script src="/js/dashboardCharts.js"></script>

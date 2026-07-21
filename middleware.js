@@ -30,23 +30,24 @@ module.exports.isOwner = async (req, res, next) => {
 };
 
 module.exports.validateListing = (req, res, next) => {
-    let { error } = listingSchema.validate(req.body);
+    let { error } = listingSchema.validate(req.body, { allowUnknown: true });
 
     if (error) {
-        let errMsg = error.details.map((el) => el.message).join(",")
+        console.log(error.details);
+        let errMsg = error.details.map((el) => el.message).join(",");
         throw new ExpressError(400, errMsg);
     } else {
         next();
     }
 };
 
-module.exports.validateReview=(req,res,next)=>{
-    let {error} =reviewSchema.validate(req.body);
+module.exports.validateReview = (req, res, next) => {
+    let { error } = reviewSchema.validate(req.body, { allowUnknown: true });
 
-    if(error){
-        let errMsg=error.details.map((el)=>el.message).join(",")
-        throw new ExpressError(400,errMsg);
-    }else{
+    if (error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
         next();
     }
 };
@@ -58,4 +59,10 @@ module.exports.isReviewAuthor = async (req, res, next) => {
         return res.redirect(`/listings/${id}`);
 
     } next();
+};
+
+module.exports.isHost = (req, res, next) => {
+    // For future expansion (e.g. req.user.role === "host"). 
+    // Currently, any authenticated user can act as a host and list properties.
+    next();
 };

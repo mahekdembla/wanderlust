@@ -1,0 +1,86 @@
+/* Advanced Review System Custom Styles */
+
+.review-stats-card {
+    background-color: #fff;
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    padding: 1.5rem;
+}
+
+.rating-distribution-bar {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.verified-badge {
+    color: #198754;
+    background-color: rgba(25, 135, 84, 0.1);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.review-img-thumbnail {
+    width: 65px;
+    height: 65px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #dee2e6;
+}
+
+.review-img-thumbnail:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.host-reply-box {
+    margin-left: 2rem;
+    background-color: #f8f9fa;
+    border-left: 4px solid #fe424d;
+    border-radius: 0 12px 12px 0;
+    padding: 1rem;
+}
+
+.helpful-btn {
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #484848;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.helpful-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.helpful-btn.active {
+    color: #fe424d;
+    background-color: rgba(254, 66, 77, 0.05);
+    border-color: #fe424d;
+}
+
+.helpful-btn:active {
+    transform: scale(0.95);
+}
+
+.review-card {
+    border: none;
+    border-bottom: 1px solid #eee;
+    border-radius: 0;
+    margin-bottom: 1.5rem;
+}
+
+.review-filters-bar {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.75rem;
+}

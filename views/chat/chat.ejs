@@ -18,7 +18,7 @@
         <!-- CHAT MESSAGES -->
         <div id="messages">
             <% messages.forEach(m=> { %>
-                <% const isMine=String(m.sender._id)===String(currUser._id); %>
+                <% const isMine=String(m.sender._id)===String(locals.currUser?._id); %>
                     <div class="<%= isMine ? 'my-msg' : 'their-msg' %>">
                         <p>
                             <%= m.message %>
@@ -61,7 +61,7 @@
         const socket = io();
 
         const roomId = "<%= listingId %>";
-        const sender = "<%= currUser._id %>";
+        const sender = "<%= locals.currUser?._id %>";
         const receiver = "<%= receiverId %>";
         const receiverName = "<%= receiverUsername %>";
 

@@ -36,4 +36,8 @@ const chatSchema=new Schema({
     }
 
 });
+
+chatSchema.index({ listingId: 1, createdAt: -1 });
+chatSchema.index({ sender: 1, receiver: 1 });
+
 module.exports=mongoose.model("Chat", chatSchema)

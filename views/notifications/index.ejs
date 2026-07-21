@@ -1,0 +1,277 @@
+<% layout("/layouts/boilerplate") %>
+<%
+const iconMap = {
+    bookingRequest: '<i class="fa-solid fa-calendar-plus text-primary fs-4"></i>',
+    bookingApproved: '<i class="fa-solid fa-circle-check text-success fs-4"></i>',
+    bookingRejected: '<i class="fa-solid fa-circle-xmark text-danger fs-4"></i>',
+    bookingCancelled: '<i class="fa-solid fa-calendar-xmark text-warning fs-4"></i>',
+    newMessage: '<i class="fa-solid fa-comment-dots text-info fs-4"></i>',
+    newReview: '<i class="fa-solid fa-star text-warning fs-4"></i>',
+    listingUpdated: '<i class="fa-solid fa-pen-to-square text-info fs-4"></i>',
+    listingDeleted: '<i class="fa-solid fa-trash-can text-danger fs-4"></i>',
+    system: '<i class="fa-solid fa-bell text-secondary fs-4"></i>'
+};
+function getIcon(type) {
+    return iconMap[type] || iconMap.system;
+}
+%>
+
+<div class="row mt-4">
+    <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Notifications</h2>
+            <div id="action-buttons" class="<%= notifications.length === 0 ? 'd-none' : '' %>">
+                <button class="btn btn-outline-dark btn-sm me-2 animate-hover" onclick="markAllNotificationsAsReadOnPage()">
+                    <i class="fa-solid fa-check-double"></i> Mark All Read
+                </button>
+                <button class="btn btn-outline-danger btn-sm animate-hover" onclick="deleteAllNotificationsOnPage()">
+                    <i class="fa-solid fa-trash"></i> Delete All
+                </button>
+            </div>
+        </div>
+
+        <div id="notifications-container">
+            <% if(notifications.length === 0){ %>
+                <div class="alert alert-info py-4 text-center no-notifications-alert">
+                    <i class="fa-solid fa-bell-slash fs-3 d-block mb-2"></i>
+                    No notifications yet.
+                </div>
+            <% } %>
+
+            <% notifications.forEach(n => { %>
+                <div id="notification-card-<%= n._id %>" class="card mb-3 shadow-sm border-0 rounded-3 overflow-hidden notification-card <%= n.isRead ? '' : 'bg-light-unread' %>">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="notification-icon-wrapper me-3">
+                            <%- getIcon(n.type) %>
+                        </div>
+                        <div class="flex-grow-1">
+                            <p class="mb-1 text-dark <%= n.isRead ? '' : 'fw-semibold' %>"><%= n.message %></p>
+                            <small class="text-muted text-capitalize-first">
+                                <% if (n.createdAt) { %>
+                                    <span class="dayjs-relative-time" data-time="<%= n.createdAt.toISOString() %>">
+                                        <%= n.createdAt.toLocaleDateString("en-IN") %>
+                                    </span>
+                                <% } %>
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <% if(!n.isRead){ %>
+                                <button id="read-btn-<%= n._id %>" class="btn btn-light btn-sm text-primary rounded-circle border-0" title="Mark as Read" onclick="markAsReadOnPage('<%= n._id %>')">
+                                    <i class="fa-solid fa-check fs-5"></i>
+                                </button>
+                            <% } %>
+                            <button class="btn btn-light btn-sm text-danger rounded-circle border-0" title="Delete" onclick="deleteNotificationOnPage('<%= n._id %>')">
+                                    <i class="fa-solid fa-trash fs-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Format times client-side with dayjs
+    document.addEventListener("DOMContentLoaded", () => {
+        if (typeof dayjs !== "undefined") {
+            document.querySelectorAll(".dayjs-relative-time").forEach(el => {
+                const timeStr = el.dataset.time;
+                el.innerText = dayjs(timeStr).fromNow();
+            });
+        }
+    });
+
+    /**
+     * Real-time injection when a notification is received and user is active on this page
+     */
+    function appendNotificationToPage(notification) {
+        const container = document.getElementById("notifications-container");
+        if (!container) return;
+
+        // Hide alert if empty
+        const alertObj = container.querySelector(".no-notifications-alert");
+        if (alertObj) alertObj.remove();
+
+        // Reveal header buttons
+        document.getElementById("action-buttons").classList.remove("d-none");
+
+        const div = document.createElement("div");
+        div.id = `notification-card-${notification._id}`;
+        div.className = "card mb-3 shadow-sm border-0 rounded-3 overflow-hidden notification-card bg-light-unread";
+        
+        const iconHTML = getIconHTML(notification.type);
+        const timeHTML = typeof dayjs !== "undefined" ? dayjs(notification.createdAt).fromNow() : "Just now";
+
+        div.innerHTML = `
+            <div class="card-body p-3 d-flex align-items-center">
+                <div class="notification-icon-wrapper me-3">
+                    ${iconHTML}
+                </div>
+                <div class="flex-grow-1">
+                    <p class="mb-1 text-dark fw-semibold">${notification.message}</p>
+                    <small class="text-muted">${timeHTML}</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <button id="read-btn-${notification._id}" class="btn btn-light btn-sm text-primary rounded-circle border-0" title="Mark as Read" onclick="markAsReadOnPage('${notification._id}')">
+                        <i class="fa-solid fa-check fs-5"></i>
+                    </button>
+                    <button class="btn btn-light btn-sm text-danger rounded-circle border-0" title="Delete" onclick="deleteNotificationOnPage('${notification._id}')">
+                        <i class="fa-solid fa-trash fs-5"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Prepend new item
+        container.insertBefore(div, container.firstChild);
+    }
+
+    function getIconHTML(type) {
+        const mapping = {
+            bookingRequest: '<i class="fa-solid fa-calendar-plus text-primary fs-4"></i>',
+            bookingApproved: '<i class="fa-solid fa-circle-check text-success fs-4"></i>',
+            bookingRejected: '<i class="fa-solid fa-circle-xmark text-danger fs-4"></i>',
+            bookingCancelled: '<i class="fa-solid fa-calendar-xmark text-warning fs-4"></i>',
+            newMessage: '<i class="fa-solid fa-comment-dots text-info fs-4"></i>',
+            newReview: '<i class="fa-solid fa-star text-warning fs-4"></i>',
+            listingUpdated: '<i class="fa-solid fa-pen-to-square text-info fs-4"></i>',
+            listingDeleted: '<i class="fa-solid fa-trash-can text-danger fs-4"></i>',
+            system: '<i class="fa-solid fa-bell text-secondary fs-4"></i>'
+        };
+        return mapping[type] || mapping.system;
+    }
+
+    /**
+     * Mark single notification as read
+     */
+    async function markAsReadOnPage(id) {
+        try {
+            const res = await fetch(`/notifications/${id}/read`, { method: "PATCH" });
+            const data = await res.json();
+            if (data.success) {
+                const card = document.getElementById(`notification-card-${id}`);
+                if (card) {
+                    card.classList.remove("bg-light-unread");
+                    const p = card.querySelector("p");
+                    if (p) p.classList.remove("fw-semibold");
+                }
+                const readBtn = document.getElementById(`read-btn-${id}`);
+                if (readBtn) readBtn.remove();
+                
+                // Update dropdown state as well
+                const dropItem = document.getElementById(`dropdown-notification-${id}`);
+                if (dropItem) {
+                    dropItem.classList.remove("bg-light-unread");
+                    const dot = dropItem.querySelector(".unread-dot-indicator");
+                    if (dot) dot.remove();
+                }
+
+                updateNavbarBadge(-1);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    /**
+     * Delete a single notification
+     */
+    async function deleteNotificationOnPage(id) {
+        try {
+            const res = await fetch(`/notifications/${id}`, { method: "DELETE" });
+            const data = await res.json();
+            if (data.success) {
+                const card = document.getElementById(`notification-card-${id}`);
+                
+                // Detect if it was unread to decrease badge
+                if (card && card.classList.contains("bg-light-unread")) {
+                    updateNavbarBadge(-1);
+                }
+
+                if (card) card.remove();
+
+                const dropItem = document.getElementById(`dropdown-notification-${id}`);
+                if (dropItem) dropItem.remove();
+
+                checkEmptyNotifications();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    /**
+     * Mark all as read
+     */
+    async function markAllNotificationsAsReadOnPage() {
+        try {
+            const res = await fetch("/notifications/read-all", { method: "PATCH" });
+            const data = await res.json();
+            if (data.success) {
+                // Update page UI
+                document.querySelectorAll(".notification-card").forEach(card => {
+                    card.classList.remove("bg-light-unread");
+                    const p = card.querySelector("p");
+                    if (p) p.classList.remove("fw-semibold");
+                });
+                document.querySelectorAll("[id^='read-btn-']").forEach(btn => btn.remove());
+                
+                // Update dropdown UI
+                document.querySelectorAll(".dropdown-notification-item").forEach(item => {
+                    item.classList.remove("bg-light-unread");
+                    const dot = item.querySelector(".unread-dot-indicator");
+                    if (dot) dot.remove();
+                });
+
+                setNavbarBadge(0);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    /**
+     * Delete all notifications
+     */
+    async function deleteAllNotificationsOnPage() {
+        try {
+            const res = await fetch("/notifications", { method: "DELETE" });
+            const data = await res.json();
+            if (data.success) {
+                document.querySelectorAll(".notification-card").forEach(card => card.remove());
+                document.querySelectorAll(".dropdown-notification-item").forEach(item => item.remove());
+                
+                // Add "No new notifications" to dropdown
+                const dropdownList = document.getElementById("notification-dropdown-list");
+                if (dropdownList && !dropdownList.querySelector(".no-notifs")) {
+                    const noNotifs = document.createElement("li");
+                    noNotifs.className = "dropdown-item text-center text-muted no-notifs py-3 small";
+                    noNotifs.innerHTML = "No new notifications";
+                    dropdownList.insertBefore(noNotifs, document.getElementById("notification-view-all"));
+                }
+
+                setNavbarBadge(0);
+                checkEmptyNotifications();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    /**
+     * Helper to show alert if page container becomes empty
+     */
+    function checkEmptyNotifications() {
+        const container = document.getElementById("notifications-container");
+        if (container && container.children.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info py-4 text-center no-notifications-alert">
+                    <i class="fa-solid fa-bell-slash fs-3 d-block mb-2"></i>
+                    No notifications yet.
+                </div>
+            `;
+            document.getElementById("action-buttons").classList.add("d-none");
+        }
+    }
+</script>

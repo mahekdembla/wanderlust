@@ -1,0 +1,28 @@
+<% layout("/layouts/boilerplate") %>
+
+
+<h2>Pg Finder</h2>
+<% if(listings.length===0){ %>
+    <p>No pg Listings available righ now</p>
+<%}%>
+
+<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+    <% listings.forEach(pg=>{ %>
+        <div class="col mb-4" >
+            <div class="card listing-card position-relative shadow-sm border-0 rounded-4 overflow-hidden h-100 bg-white">
+                <a href="/listings/<%= pg._id %>" class="listing-link">
+                    <img src="<%= (pg.images && pg.images.length > 0) ? pg.images[0].url : (pg.image ? pg.image.url : 'https://media.cntraveler.com/photos/5d112d50c4d7bd806dbc00a4/16:9/w_2239,h_1259,c_limit/airbnb%20luxe.jpg') %>" class="card-img-top" style="height:15rem; object-fit: cover;" alt="<%= pg.title %>">
+                </a>
+                <div class="card-body p-3">
+                    <h6 class="card-title mb-1 text-truncate"><strong><%= pg.title %></strong></h6>
+                    <p class="card-text text-muted mb-2 small"><i class="fa-solid fa-location-dot me-1 text-danger"></i><%= pg.location %></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-dark small">
+                            <strong>₹ <%= pg.pgDetails?.monthlyRent?.toLocaleString("en-IN") %></strong> / month
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <%})%>
+</div>

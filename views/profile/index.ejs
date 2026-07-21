@@ -1,0 +1,241 @@
+<% layout("/layouts/boilerplate") %>
+
+<link rel="stylesheet" href="/css/profile.css">
+
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- LEFT COLUMN: SIDEBAR CARD -->
+        <div class="col-lg-4 col-12">
+            <div class="card profile-sidebar p-4 shadow-sm text-center">
+                <!-- Avatar image -->
+                <div class="profile-avatar-container mb-3">
+                    <img src="<%= (user.avatar && user.avatar.url) ? user.avatar.url : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=250&q=80' %>" alt="avatar" class="profile-avatar">
+                </div>
+                
+                <h3 class="fw-bold mb-1"><%= user.username %></h3>
+                <p class="text-muted small"><%= user.profession || "Profession not set" %> at <%= user.college || "College not set" %></p>
+                
+                <!-- Verification Badges -->
+                <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                    <% if (user.verification && user.verification.emailVerified) { %>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-envelope-circle-check"></i> Email Verified</span>
+                    <% } %>
+                    <% if (user.verification && user.verification.phoneVerified) { %>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-phone-flip"></i> Phone Verified</span>
+                    <% } else { %>
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-phone-slash"></i> Phone Unverified</span>
+                    <% } %>
+                    <% if (user.verification && user.verification.idVerified) { %>
+                        <span class="badge bg-info bg-opacity-10 text-info border border-info-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-id-card"></i> ID Verified</span>
+                    <% } %>
+                    <% if (user.verification && user.verification.superhost) { %>
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning-subtle rounded-pill px-2 py-1"><i class="fa-solid fa-medal"></i> Super Host</span>
+                    <% } %>
+                </div>
+
+                <div class="text-start border-top pt-3">
+                    <p class="mb-2"><i class="fa-solid fa-user-clock text-muted me-2"></i> Joined: <%= new Date(user.joinedDate).toLocaleDateString("en-IN", {year: "numeric", month: "long"}) %></p>
+                    <p class="mb-2"><i class="fa-solid fa-envelope text-muted me-2"></i> <%= user.email %></p>
+                    <% if (user.phone) { %>
+                        <p class="mb-2"><i class="fa-solid fa-phone text-muted me-2"></i> <%= user.phone %></p>
+                    <% } %>
+                    <% if (user.city || user.country) { %>
+                        <p class="mb-2"><i class="fa-solid fa-location-dot text-muted me-2"></i> <%= [user.city, user.country].filter(Boolean).join(", ") %></p>
+                    <% } %>
+                    <% if (user.gender) { %>
+                        <p class="mb-2"><i class="fa-solid fa-venus-mars text-muted me-2"></i> <%= user.gender %></p>
+                    <% } %>
+                    <% if (user.dob) { %>
+                        <p class="mb-2"><i class="fa-solid fa-cake-candles text-muted me-2"></i> DOB: <%= new Date(user.dob).toLocaleDateString("en-IN", {year: "numeric", month: "short", day: "numeric"}) %></p>
+                    <% } %>
+                </div>
+
+                <!-- Languages Spoken -->
+                <div class="text-start border-top pt-3 mt-2">
+                    <h6 class="fw-bold">Languages Spoken</h6>
+                    <% if (user.languages && user.languages.length > 0) { %>
+                        <div class="d-flex flex-wrap gap-2 mt-1">
+                            <% user.languages.forEach(lang => { %>
+                                <span class="badge bg-dark rounded-pill px-2 py-1"><%= lang %></span>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted small mb-0">No languages specified</p>
+                    <% } %>
+                </div>
+
+
+
+                <div class="d-grid mt-4">
+                    <a href="/profile/edit" class="btn btn-outline-dark rounded-pill"><i class="fa-solid fa-user-pen me-2"></i> Edit Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: STATS AND ACTIVITY -->
+        <div class="col-lg-8 col-12">
+            <!-- Bio Card -->
+            <div class="card profile-card p-4 shadow-sm mb-4">
+                <h4 class="fw-bold mb-3">About Me</h4>
+                <% if (user.bio) { %>
+                    <p class="text-dark mb-0" style="line-height: 1.6; white-space: pre-wrap;"><%= user.bio %></p>
+                <% } else { %>
+                    <p class="text-muted mb-0">No bio provided yet. Add one in your settings page!</p>
+                <% } %>
+            </div>
+
+            <!-- STATISTICS CARDS -->
+            <div class="card profile-card p-4 shadow-sm mb-4">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-chart-simple text-danger me-2"></i> Statistics</h4>
+                
+                <ul class="nav nav-tabs border-bottom mb-3" id="statsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active text-dark fw-bold" id="guest-tab" data-bs-toggle="tab" data-bs-target="#guest-tab-pane" type="button" role="tab" aria-controls="guest-tab-pane" aria-selected="true">Guest Status</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-dark fw-bold" id="host-tab" data-bs-toggle="tab" data-bs-target="#host-tab-pane" type="button" role="tab" aria-controls="host-tab-pane" aria-selected="false">Host Status</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="statsTabsContent">
+                    <!-- Guest Statistics Tab -->
+                    <div class="tab-pane fade show active" id="guest-tab-pane" role="tabpanel" aria-labelledby="guest-tab" tabindex="0">
+                        <div class="row row-cols-md-3 row-cols-1 g-3">
+                            <div class="col">
+                                <div class="stat-box p-3 text-center">
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.tripsCompleted %></h2>
+                                    <small class="text-muted">Trips Completed</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-box p-3 text-center">
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.wishlistCount %></h2>
+                                    <small class="text-muted">Wishlist Items</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-box p-3 text-center">
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.reviewsWritten %></h2>
+                                    <small class="text-muted">Reviews Written</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-box p-3 text-center">
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.citiesVisited %></h2>
+                                    <small class="text-muted">Cities Visited</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="stat-box p-3 text-center">
+                                    <h2 class="fw-bold text-dark mb-0"><%= guestStats.totalNightsStayed %></h2>
+                                    <small class="text-muted">Nights Stayed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Host Statistics Tab -->
+                    <div class="tab-pane fade" id="host-tab-pane" role="tabpanel" aria-labelledby="host-tab" tabindex="0">
+                        <% if (hostStats.totalListings === 0) { %>
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-3">You don't own any listings yet.</p>
+                                <a href="/listings/new" class="btn btn-danger btn-sm rounded-pill px-4">Airbnb Your Home</a>
+                            </div>
+                        <% } else { %>
+                            <div class="row row-cols-md-3 row-cols-1 g-3">
+                                <div class="col">
+                                    <div class="stat-box p-3 text-center">
+                                        <h2 class="fw-bold text-dark mb-0"><%= hostStats.totalListings %></h2>
+                                        <small class="text-muted">Active Listings</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="stat-box p-3 text-center">
+                                        <h2 class="fw-bold text-dark mb-0">₹<%= hostStats.totalRevenue.toLocaleString("en-IN") %></h2>
+                                        <small class="text-muted">Earnings</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="stat-box p-3 text-center">
+                                        <h2 class="fw-bold text-dark mb-0"><%= hostStats.avgRating %> ★</h2>
+                                        <small class="text-muted">Average Rating</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="stat-box p-3 text-center">
+                                        <h2 class="fw-bold text-dark mb-0"><%= hostStats.approvedBookings %></h2>
+                                        <small class="text-muted">Bookings Approved</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="stat-box p-3 text-center">
+                                        <h2 class="fw-bold text-dark mb-0"><%= hostStats.guestsHosted %></h2>
+                                        <small class="text-muted">Guests Hosted</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-end mt-3">
+                                <a href="/host/dashboard" class="btn btn-outline-danger btn-sm rounded-pill"><i class="fa-solid fa-chart-line me-1"></i> Host Dashboard</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECENT ACTIVITY TABS/CARDS -->
+            <div class="card profile-card p-4 shadow-sm">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Recent Activity</h4>
+                
+                <div class="row g-4">
+                    <!-- Bookings -->
+                    <div class="col-md-6 col-12">
+                        <h6 class="fw-bold border-bottom pb-2 mb-2"><i class="fa-solid fa-calendar text-muted me-1"></i> Bookings</h6>
+                        <% if (recentBookings.length === 0) { %>
+                            <p class="text-muted small">No bookings registered yet.</p>
+                        <% } else { %>
+                            <div class="list-group list-group-flush">
+                                <% recentBookings.forEach(booking => { 
+                                    if (!booking.listing) return;
+                                %>
+                                    <div class="list-group-item px-0 py-2 border-0 border-bottom border-light">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-truncate fw-semibold small" style="max-width: 150px;"><%= booking.listing.title %></span>
+                                            <% if (booking.status === 'approved') { %>
+                                                <span class="badge bg-success" style="font-size: 0.65rem;">Approved</span>
+                                            <% } else if (booking.status === 'pending') { %>
+                                                <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">Pending</span>
+                                            <% } else { %>
+                                                <span class="badge bg-danger" style="font-size: 0.65rem;">Rejected</span>
+                                            <% } %>
+                                        </div>
+                                        <small class="text-muted d-block" style="font-size: 0.75rem;"><%= new Date(booking.checkIn).toLocaleDateString("en-IN") %> - <%= new Date(booking.checkOut).toLocaleDateString("en-IN") %></small>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Reviews -->
+                    <div class="col-md-6 col-12">
+                        <h6 class="fw-bold border-bottom pb-2 mb-2"><i class="fa-solid fa-star text-muted me-1"></i> Reviews Given</h6>
+                        <% if (recentReviews.length === 0) { %>
+                            <p class="text-muted small">No reviews written yet.</p>
+                        <% } else { %>
+                            <div class="list-group list-group-flush">
+                                <% recentReviews.forEach(review => { %>
+                                    <div class="list-group-item px-0 py-2 border-0 border-bottom border-light">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-warning" style="font-size: 0.75rem;"><%= "★".repeat(review.rating) %><%= "☆".repeat(5-review.rating) %></span>
+                                            <small class="text-muted" style="font-size: 0.7rem;"><%= new Date(review.createdAt).toLocaleDateString("en-IN") %></small>
+                                        </div>
+                                        <p class="mb-0 text-muted small text-truncate"><%= review.comment %></p>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

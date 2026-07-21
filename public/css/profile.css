@@ -1,0 +1,100 @@
+/* Complete User Profile System Custom CSS */
+
+.profile-avatar-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-upload-label {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: #fe424d;
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s;
+}
+
+.avatar-upload-label:hover {
+    transform: scale(1.1);
+    background-color: #e03943;
+}
+
+.profile-sidebar {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid #eaeaea;
+}
+
+.profile-card {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid #eaeaea;
+}
+
+.stat-box {
+    border-radius: 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #f1f1f1;
+    transition: background-color 0.2s;
+}
+
+.stat-box:hover {
+    background-color: #f2f3f5;
+}
+
+.verification-list-item {
+    font-size: 0.9rem;
+    color: #484848;
+}
+
+.social-icon-btn {
+    font-size: 1.5rem;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.social-icon-btn:hover {
+    transform: scale(1.15);
+}
+
+.github-btn {
+    color: #24292e;
+}
+
+.linkedin-btn {
+    color: #0077b5;
+}
+
+.portfolio-btn {
+    color: #0d6efd;
+}
+
+.instagram-btn {
+    color: #e4405f;
+}
+
+.section-divider {
+    height: 1px;
+    background-color: #eaeaea;
+    margin: 2rem 0;
+}

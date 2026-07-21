@@ -1,59 +1,203 @@
 <% layout("/layouts/boilerplate") %>
 
-<div class="row mt-3">
-    <div class="col-8 offset-2">
-        <br><br><br>
-        <h3>Create New List</h3>
+    <div class="row mt-3">
+        <div class="col-8 offset-2">
+            <br><br><br>
+            <h3>Create New List</h3>
 
-        <form method="POST" action="/listings" novalidate class="needs-validation" enctype="multipart/form-data">
+            <form method="POST" action="/listings" novalidate class="needs-validation" enctype="multipart/form-data">
 
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input name="listing[title]" placeholder="Enter title" type="text" class="form-control" required>
-                <div class="valid-feedback">Title looks good</div>
-            </div>
 
-            <br>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea name="listing[description]" class="form-control" required></textarea>
-            </div>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input name="listing[title]" placeholder="Enter title" type="text" class="form-control" required>
+                    <div class="valid-feedback">Title looks good</div>
+                </div>
 
-            <br>
-           
-            <div class="mb-3">
-                <label for="image" class="form-label">Upload 
-                    Listing Image</label>
-                <input name="listing[image]" type="file" class="form-control"  >
-                
-            </div>
 
-            <br>
-            <div class="row">
-                <div class="mb-3 col-md-4">
-                    <label for="price" class="form-label">Price</label>
-                    <input name="listing[price]" placeholder="Enter price" class="form-control" required>
-                    <div class="invalid-feedback">Please enter a valid price</div>
+                <br>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea name="listing[description]" class="form-control" rows="5" required></textarea>
+                    <button type="button" id="ai-desc-btn" class="btn btn-outline-danger btn-sm mt-2 rounded-pill"><i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generate Description with AI</button>
                 </div>
 
                 <br>
-                <div class="mb-3 col-md-8">
-                    <label for="country" class="form-label">Country</label>
-                    <input name="listing[country]" placeholder="Enter country" type="text" class="form-control" required>
-                    <div class="invalid-feedback">Please enter a valid country</div>
+
+                <div class="mb-3">
+                    <label for="images-upload-input" class="form-label fw-semibold">Upload Listing Images (1 to 10 photos)</label>
+                    <input name="listing[images]" type="file" id="images-upload-input" class="form-control" multiple accept="image/*" required>
+                    <div class="valid-feedback">Looks good!</div>
+                    <div class="invalid-feedback">Please upload at least one image.</div>
+                    <small class="form-text text-muted d-block mt-1"><i class="fa-solid fa-circle-info text-primary me-1"></i> Tip: Hold <strong>Ctrl</strong> (Windows) or <strong>Cmd</strong> (Mac) in the file picker dialog to select and upload multiple photos at once.</small>
+                    
+                    <!-- Previews grid -->
+                    <div id="image-preview-container" class="uploaded-images-preview-grid d-none"></div>
                 </div>
-            </div>
 
-            <br>
-            <div class="mb-3">
-                <label for="location" class="form-label">Location</label>
-                <input name="listing[location]" placeholder="Enter location" type="text" class="form-control" required>
-                <div class="invalid-feedback">Location should be valid</div>
-            </div>
+                <script>
+                    document.getElementById("images-upload-input").addEventListener("change", function(e) {
+                        const container = document.getElementById("image-preview-container");
+                        container.innerHTML = "";
+                        const files = e.target.files;
+                        if (files.length > 0) {
+                            container.classList.remove("d-none");
+                            for (let i = 0; i < Math.min(files.length, 10); i++) {
+                                const file = files[i];
+                                const reader = new FileReader();
+                                reader.onload = function(event) {
+                                    const div = document.createElement("div");
+                                    div.className = "uploaded-image-card shadow-sm";
+                                    div.innerHTML = `<img src="${event.target.result}" alt="preview">`;
+                                    container.appendChild(div);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        } else {
+                            container.classList.add("d-none");
+                        }
+                    });
+                </script>
+                <div class="mb-3">
+                    <lable class="form-label">Listing Type</lable>
+                    <select name="listing[listingType]" id="listingType" class="form-control" required>
+                        <option value="stay" selected>Airbnb</option>
+                        <option value="pg">Pg</option>
 
-            <br>
-            <button class="btn btn-dark add-btn mt-3">ADD</button>
-            <br><br><br>
-        </form>
+
+                    </select>
+                </div>
+                <div id="pgFields" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label">Monthly Rent</label>
+                        <input type="number" name="listing[pgDetails][monthlyRent]" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Security Deposit</label>
+                        <input type="number" name="listing[pgDetails][deposit]" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <lable class="form-label">sharing Type</lable>
+                        <select name="listing[pgDetails][sharingType]" class="form-control">
+                            <option value="single">single</option>
+                            <option value="double">Double</option>
+                            <option value="triple">Triple</option>
+
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <lable class="form-label">Gender Allowed</lable>
+                        <select name="listing[pgDetails][genderAllowed]" class="form-control">
+                            <option value="boys">Boys</option>
+                            <option value="girls">Girls</option>
+                            <option value="both">Both</option>
+
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" name="listing[pgDetails][foodIncluded]" class="form-check-input"
+                            value="true">
+                        <label class="form-check-label"> food Incuded</label>
+
+                    </div>
+
+
+                </div>
+
+                <br>
+                <div class="row">
+                    <div class="mb-3 col-md-4" id="priceField">
+                        <label for="price" class="form-label">Price</label>
+                        <input name="listing[price]" placeholder="Enter price" class="form-control" id="priceInput">
+                        <div class="invalid-feedback">Please enter a valid price</div>
+                    </div>
+
+                    <br>
+                    <div class="mb-3 col-md-8">
+                        <label for="country" class="form-label">Country</label>
+                        <input name="listing[country]" placeholder="Enter country" type="text" class="form-control"
+                            required>
+                        <div class="invalid-feedback">Please enter a valid country</div>
+                    </div>
+                </div>
+
+                <br>
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input name="listing[location]" placeholder="Enter location" type="text" class="form-control"
+                        required>
+                    <div class="invalid-feedback">Location should be valid</div>
+                </div>
+
+                <br>
+                <button class="btn btn-dark add-btn mt-3">ADD</button>
+                <br><br><br>
+            </form>
+        </div>
     </div>
-</div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const typeSelect = document.getElementById("listingType");
+            const pgFields = document.getElementById("pgFields");
+            const priceField = document.getElementById("priceField");
+            const priceInput = document.getElementById("priceInput");
+
+            function toggleFields() {
+                const isPG = typeSelect.value === "pg";
+
+                pgFields.style.display = isPG ? "block" : "none";
+                priceField.style.display = isPG ? "none" : "block";
+                priceInput.disabled = isPG;
+
+                // Disable or enable all PG fields
+                pgFields.querySelectorAll("input, select").forEach(field => {
+                    field.disabled = !isPG;
+                });
+            }
+
+            typeSelect.addEventListener("change", toggleFields);
+            toggleFields();
+
+            // AI Description generator script
+            const aiDescBtn = document.getElementById("ai-desc-btn");
+            if (aiDescBtn) {
+                aiDescBtn.addEventListener("click", async () => {
+                    const titleInput = document.querySelector('input[name="listing[title]"]');
+                    const locationInput = document.querySelector('input[name="listing[location]"]');
+                    const priceInput = document.getElementById("priceInput");
+                    const descArea = document.querySelector('textarea[name="listing[description]"]');
+                    
+                    const title = titleInput ? titleInput.value.trim() : "";
+                    const location = locationInput ? locationInput.value.trim() : "";
+                    const price = priceInput ? priceInput.value || 0 : 0;
+                    
+                    if (!title || !location) {
+                        alert("Please fill in Title and Location first so AI has enough context!");
+                        return;
+                    }
+                    
+                    aiDescBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Writing description...`;
+                    try {
+                        const res = await fetch("/ai/property-description", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ title, location, price, amenities: [] })
+                        });
+                        const data = await res.json();
+                        if (data.success && data.description) {
+                            descArea.value = data.description;
+                            aiDescBtn.innerHTML = `<i class="fa-solid fa-check me-1"></i> Regenerate with AI`;
+                        } else {
+                            throw new Error("Failed to generate description");
+                        }
+                    } catch (err) {
+                        alert("Could not contact description generator service.");
+                        aiDescBtn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles me-1"></i> Generate Description with AI`;
+                    }
+                });
+            }
+        });
+
+    </script>

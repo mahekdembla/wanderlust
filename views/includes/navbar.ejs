@@ -1,78 +1,219 @@
 <style>
-  .search-btn{
-    background-color: #fe424d;
-    color: white;
-    border-radius: 25px;
-    padding:0 1rem 0 1rem;
-  }
-  .search-btn:hover{
-    background-color: #fe424d;
-    color: white;
+    .navbar {
+        height: auto;
+        min-height: 4.5rem;
+        padding: 0.5rem 1rem;
+        background-color: #ffffff;
+        box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+    }
 
-  }
-  .search-btn i{
-    display: inline;
-    margin-left: 0.5rem;
-  }
-  .search-inp{
-    border-radius: 25px;
-    padding: 0.5rem 3rem 0.5rem 3rem;
-    font-size: 1rem;
-  }
+    .fa-compass {
+        color: #fe424d;
+        font-size: 2rem;
+    }
+
+    .brand-title {
+        color: #fe424d;
+        font-weight: 700;
+        font-size: 1.35rem;
+        letter-spacing: -0.5px;
+    }
+
+    .nav-link {
+        color: #222222 !important;
+        font-weight: 500;
+        font-size: 0.95rem;
+        padding: 0.5rem 0.8rem !important;
+        transition: color 0.2s ease;
+    }
+
+    .nav-link:hover {
+        color: #fe424d !important;
+    }
+
+    .search-pill {
+        border: 1px solid #e2e8f0;
+        border-radius: 30px;
+        padding: 4px 6px 4px 16px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: all 0.2s ease;
+        max-width: 460px;
+        width: 100%;
+    }
+
+    .search-pill:focus-within, .search-pill:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .search-input {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        font-size: 0.9rem;
+        background: transparent !important;
+        color: #1e293b;
+    }
+
+    .search-input::placeholder {
+        color: #94a3b8;
+    }
+
+    .search-submit-btn {
+        background-color: #fe424d;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .search-submit-btn:hover {
+        background-color: #e0313c;
+        transform: scale(1.05);
+    }
+
+    .no-caret::after {
+        display: none !important;
+    }
+
+    .profile-btn {
+        border: 1px solid #e2e8f0;
+        border-radius: 25px;
+        padding: 5px 12px !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .profile-btn:hover {
+        background-color: #f8fafc;
+    }
+
+    .navbar-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
 </style>
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top ">
 
-  <div class="container-fluid">
-    
-    <a class="navbar-brand" href="/listings"><i class="fa-regular fa-compass"></i></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      
-      <div class="navbar-nav">
+<% 
+    const currentUser = (typeof currUser !== 'undefined' && currUser) 
+        || (typeof locals !== 'undefined' && locals.currUser) 
+        || (typeof user !== 'undefined' && user && user.username ? user : null); 
+%>
 
-        <a class="nav-link" href="/listings">Explore</a>
+<nav class="navbar navbar-expand-md border-bottom sticky-top">
+    <div class="container-fluid">
+        <!-- BRAND -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/listings">
+            <i class="fa-regular fa-compass"></i>
+            <span class="brand-title">Wanderlust</span>
+        </a>
 
-      </div>
-      <a href="/wishlist" class="nav-link">
-        <i class="fa-solid fa-heart" style="color:red;"></i> Wishlist
-      </a>
-      
-      
-      
-      <div class="navbar-nav ms-auto">
-        <form action="/search" method="GET" class="d-flex" style="gap: 10px;" role="search">
-          <input class="form-control me-2 search-inp" type="search"
-          name="q" placeholder="Search city ,country, title" style="width: 250px;"  />
+        <!-- MOBILE TOGGLER -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-          <input class="form-control" type="number" name="minPrice" placeholder="Min Price" style="width: 120px;" >
-          
-          <input class="form-control" type="number" name="maxPrice" placeholder="Max Price" style="width: 120px;">
+        <div class="collapse navbar-collapse my-2 my-md-0" id="navbarNavAltMarkup">
+            <!-- LEFT NAVIGATION -->
+            <div class="navbar-nav me-auto align-items-center">
+                <a class="nav-link" href="/listings">
+                    Explore
+                </a>
+                <a class="nav-link" href="/listings/pg">
+                    PG Finder
+                </a>
+            </div>
 
-          <select class="form-select" name="sort" style="width:150px ;">
-            <option value="">Sort By</option>
-            <option value="priceLow">Price:low -> high</option>
-            <option value="priceHigh">price:High -> Low</option>
-            <option value="newest">Newest</option>
+            <!-- CENTER SEARCH BAR -->
+            <div class="d-flex justify-content-center mx-auto my-2 my-md-0 w-100" style="max-width: 440px;">
+                <form action="/search" method="GET" class="d-flex align-items-center search-pill">
+                    <input class="form-control search-input text-truncate" type="search" name="q"
+                        placeholder="Search city, country, or ask AI..." 
+                        value="<%= locals.query?.q || '' %>" required>
+                    <button class="search-submit-btn flex-shrink-0" type="submit" title="Search">
+                        <i class="fa-solid fa-magnifying-glass small"></i>
+                    </button>
+                </form>
+            </div>
 
-          </select>
+            <!-- RIGHT USER MENU -->
+            <div class="navbar-nav ms-auto align-items-center gap-2">
+                <% if(!currentUser){ %>
+                    <a class="nav-link fw-semibold" href="/signup">
+                        Signup
+                    </a>
+                    <a class="btn btn-outline-danger rounded-pill px-3 py-1 fw-semibold small" href="/login">
+                        Login
+                    </a>
+                <% } else { %>
+                    <!-- NOTIFICATION BELL DROPDOWN -->
+                    <div class="nav-item dropdown me-2">
+                        <a class="nav-link position-relative dropdown-toggle no-caret p-2" href="#"
+                            id="notificationBellDropdown" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fa-solid fa-bell fs-5 text-secondary"></i>
+                            <span id="notification-badge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+                                style="font-size: 0.65rem;">
+                                0
+                            </span>
+                        </a>
+                        <ul id="notification-dropdown-list"
+                            class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 py-0 overflow-hidden"
+                            aria-labelledby="notificationBellDropdown"
+                            style="width: 320px; max-height: 450px; overflow-y: auto;">
+                            <li class="dropdown-header border-bottom py-2 bg-light d-flex justify-content-between align-items-center px-3">
+                                <span class="fw-bold text-dark">Notifications</span>
+                                <button class="btn btn-link text-decoration-none p-0 text-primary small"
+                                    style="font-size: 0.8rem;" onclick="markAllNotificationsAsRead(event)">Mark all read</button>
+                            </li>
+                            <li id="notification-view-all" class="border-top text-center py-2 bg-light">
+                                <a class="dropdown-item text-primary fw-bold text-center small py-1"
+                                    href="/notifications">View All Notifications</a>
+                            </li>
+                        </ul>
+                    </div>
 
-          <button class="btn btn-dark" type="submit"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
-        </form>
-      </div>
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/listings/new">Airbnb your home</a>
-
-        <% if(!currUser){ %>
-          <a class="nav-link " href="/signup"><b>signup</b></a>
-          <a class="nav-link" href="/login"><b>login</b></a>
-          <% } %>
-            <% if(currUser){ %>
-              <a class="nav-link" href="/logout"><b>log out</b></a>
-              <% } %>
-      </div>
+                    <!-- PROFILE DROPDOWN -->
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle profile-btn d-flex align-items-center gap-2" href="#" id="userProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-bars text-secondary me-1"></i>
+                            <% if (currentUser.avatar && currentUser.avatar.url) { %>
+                                <img src="<%= currentUser.avatar.url %>" class="navbar-avatar" alt="<%= currentUser.username %>">
+                            <% } else { %>
+                                <i class="fa-solid fa-circle-user fs-5 text-danger"></i>
+                            <% } %>
+                            <span class="fw-semibold text-dark me-1"><%= currentUser.username %></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2 overflow-hidden" aria-labelledby="userProfileDropdown" style="min-width: 230px;">
+                            <li class="px-3 py-2 border-bottom bg-light">
+                                <span class="d-block small text-muted" style="font-size: 0.75rem;">Signed in as</span>
+                                <strong class="text-dark fs-6">@<%= currentUser.username %></strong>
+                            </li>
+                            <li><a class="dropdown-item py-2" href="/profile"><i class="fa-solid fa-user me-2 text-primary"></i>My Profile</a></li>
+                            <li><a class="dropdown-item py-2" href="/wishlist"><i class="fa-solid fa-heart me-2 text-danger"></i>Wishlist</a></li>
+                            <li><a class="dropdown-item py-2" href="/bookings"><i class="fa-solid fa-calendar-check me-2 text-success"></i>My Bookings</a></li>
+                            <li><a class="dropdown-item py-2" href="/owner/bookings"><i class="fa-solid fa-inbox me-2 text-info"></i>Booking Requests</a></li>
+                            <li><a class="dropdown-item py-2" href="/listings/new"><i class="fa-solid fa-house-user me-2 text-warning"></i>Airbnb Your Home</a></li>
+                            <% if(locals.hasListings) { %>
+                                <li><a class="dropdown-item py-2" href="/host/dashboard"><i class="fa-solid fa-chart-line me-2 text-purple"></i>Host Dashboard</a></li>
+                            <% } %>
+                            <li><a class="dropdown-item py-2" href="/notifications"><i class="fa-solid fa-bell me-2 text-secondary"></i>Notifications</a></li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
+                            <li><a class="dropdown-item py-2 text-danger" href="/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                <% } %>
+            </div>
+        </div>
     </div>
-  </div>
 </nav>

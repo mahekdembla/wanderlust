@@ -1,0 +1,203 @@
+/* Listing Image Gallery and Lightbox Styles */
+
+.gallery-container {
+    margin-bottom: 1.5rem;
+}
+
+.main-gallery-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: zoom-in;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.main-gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.main-gallery-image-wrapper:hover .main-gallery-image {
+    transform: scale(1.02);
+}
+
+/* Thumbnail Strip scrollbar styling */
+.thumbnail-strip {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    margin-top: 0.75rem;
+    scrollbar-width: thin;
+}
+
+.thumbnail-strip::-webkit-scrollbar {
+    height: 6px;
+}
+
+.thumbnail-strip::-webkit-scrollbar-thumb {
+    background-color: #dee2e6;
+    border-radius: 3px;
+}
+
+.gallery-thumbnail-img {
+    width: 80px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.7;
+    transition: border-color 0.2s, opacity 0.2s;
+}
+
+.gallery-thumbnail-img:hover, 
+.gallery-thumbnail-img.active {
+    opacity: 1;
+    border-color: #fe424d;
+}
+
+/* Modal Lightbox styling */
+.lightbox-modal {
+    display: none;
+    position: fixed;
+    z-index: 1060;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.95);
+}
+
+.lightbox-content {
+    position: relative;
+    margin: auto;
+    padding: 0;
+    width: 90%;
+    max-width: 900px;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-slide-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.lightbox-close {
+    color: #fff;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-decoration: none;
+}
+
+.lightbox-close:hover {
+    color: #fe424d;
+}
+
+.lightbox-prev,
+.lightbox-next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 16px;
+    margin-top: -50px;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+    text-decoration: none;
+}
+
+.lightbox-next {
+    right: 0;
+    border-radius: 3px 0 0 3px;
+}
+
+.lightbox-prev {
+    left: 0;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fe424d;
+}
+
+.lightbox-caption-container {
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 16px;
+    color: white;
+    margin-top: 10px;
+}
+
+/* Image preview section on edit/new pages */
+.uploaded-images-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.uploaded-image-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    height: 90px;
+}
+
+.uploaded-image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.delete-image-overlay-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: rgba(220, 53, 69, 0.9);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.delete-image-overlay-btn:hover {
+    background-color: #dc3545;
+}
+
+.image-delete-checkbox {
+    display: none;
+}
+
+.image-card-to-delete {
+    opacity: 0.3;
+    border: 2px solid #dc3545;
+}

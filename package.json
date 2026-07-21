@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "cloudinary": "^2.7.0",
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.7",
@@ -17,7 +18,10 @@
     "ejs": "^3.1.10",
     "ejs-mate": "^4.0.0",
     "express": "^5.1.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.6.0",
     "express-session": "^1.18.2",
+    "helmet": "^8.3.0",
     "joi": "^18.0.1",
     "method-override": "^3.0.0",
     "mongoose": "^8.17.0",
@@ -27,6 +31,7 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^8.0.0",
+    "sanitize-html": "^2.17.5",
     "socket.io": "^4.8.1"
   }
 }
