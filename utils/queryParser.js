@@ -92,25 +92,30 @@ function parseQuery(prompt) {
         }
     }
 
-    // 4. Extract destination/city
+    // 4. Extract destination/city (Case-insensitive & strip leading preposition noise)
     let city = null;
-    const cleanText = text.replace(/for \d+ (?:people|person|guest|guests|travellers|travelers|members|friends|couples)/i, "")
-                          .replace(/(?:under|below|budget) \d+/i, "")
-                          .replace(/\d+ (?:day|days|night|nights|week|weeks)/i, "");
+    
+    // Prioritize multi-word preposition phrases first
+    const prepMatch = text.match(/(?:trip to|stay in|plan a trip to|plan trip to|visit|explore|near|in|at|to)\s+([a-zA-Z\s]+?)(?:\s+for|\s+under|\s+below|\s+with|\s+budget|\s*$)/i);
+    if (prepMatch && prepMatch[1]) {
+        let extracted = prepMatch[1].trim();
+        // Remove trailing or leading noise
+        extracted = extracted.replace(/^(to|in|near|at|visit|plan|trip|a|an|the|vacation|tour|holiday|stay)\s+/i, "").trim();
+        const fillerStopWords = ["my", "our", "a", "an", "the", "trip", "vacation", "holiday", "itinerary", "stay", "somewhere", "here", "there"];
+        if (extracted.length > 1 && !fillerStopWords.includes(extracted.toLowerCase())) {
+            city = extracted.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+        }
+    }
 
-    const knownCities = [
-        "goa", "manali", "mumbai", "delhi", "bangalore", "pune", "kasol", "shimla",
-        "jaipur", "udaipur", "kerala", "agra", "rishikesh", "varanasi", "ladakh",
-        "coorg", "ooty", "wayanad", "munnar", "darjeeling", "gangtok", "gokarna"
-    ];
-
-    const foundCity = knownCities.find(c => textLower.includes(c));
-    if (foundCity) {
-        city = foundCity.charAt(0).toUpperCase() + foundCity.slice(1);
-    } else {
-        const prepMatches = cleanText.match(/(?:to|in|near|at|visit)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)/);
-        if (prepMatches) {
-            city = prepMatches[1];
+    if (!city) {
+        const knownCities = [
+            "goa", "alibaug", "new york", "mumbai", "delhi", "bangalore", "pune", "kasol", "shimla",
+            "jaipur", "udaipur", "kerala", "agra", "rishikesh", "varanasi", "ladakh", "coorg", "ooty",
+            "wayanad", "munnar", "darjeeling", "gangtok", "gokarna", "paris", "london", "dubai", "tokyo", "singapore", "bali"
+        ];
+        const foundCity = knownCities.find(c => textLower.includes(c));
+        if (foundCity) {
+            city = foundCity.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
         }
     }
 
