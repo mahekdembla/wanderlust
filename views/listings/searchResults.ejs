@@ -1,82 +1,62 @@
 <% layout("/layouts/boilerplate") %>
-    <style>
-        .wishlist-heart {
-            position: absolute;
-            top: 12px;
-            right: 15px;
-            font-size: 1.8rem;
-            color: white;
-            text-shadow: 0 0 5px black;
-            cursor: pointer;
-            z-index: 10;
-        }
 
-        .saved {
-            color: red !important;
-            text-shadow: none !important;
-        }
-    </style>
-
-    <div class="container mt-4">
-        <h2>Search Results</h2>
-        <p>Total: <%= listings.length %> listing found</p>
-
-        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
-
-            <% listings.forEach(listing=> { %>
-
-                <div class="col mb-4">
-                    <div class="card listing-card position-relative shadow-sm border-0 rounded-4 overflow-hidden h-100 bg-white">
-
-                        <% if (locals.currUser && locals.currUser.savedListings.some(id=> String(id) === String(listing._id))) { %>
-
-                            <i class="fa-solid fa-heart wishlist-heart saved" data-id="<%= listing._id %>"></i>
-                            <% } else { %>
-                                <i class="fa-regular fa-heart wishlist-heart" data-id="<%= listing._id %>"></i>
-                                <% } %>
-
-                                    <a href="/listings/<%= listing._id %>" class="listing-link">
-                                        <img src="<%= (listing.images && listing.images.length > 0) ? listing.images[0].url : (listing.image ? listing.image.url : 'https://media.cntraveler.com/photos/5d112d50c4d7bd806dbc00a4/16:9/w_2239,h_1259,c_limit/airbnb%20luxe.jpg') %>" class="card-img-top" style="height:15rem; object-fit: cover;" alt="<%= listing.title %>">
-                                    </a>
-
-                                    <div class="card-body p-3">
-                                        <h6 class="card-title mb-1 text-truncate"><strong><%= listing.title %></strong></h6>
-                                        <p class="card-text text-muted mb-2 small"><i class="fa-solid fa-location-dot me-1 text-danger"></i><%= listing.location %></p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-dark small">
-                                                <% if (listing.listingType==="pg" ) { %>
-                                                    <strong>₹ <%= listing.pgDetails?.monthlyRent?.toLocaleString("en-IN") %></strong> / month
-                                                <% } else { %>
-                                                    <strong>₹ <%= listing.price?.toLocaleString("en-IN") %></strong> / night
-                                                <% } %>
-                                            </span>
-                                        </div>
-                                    </div>
-                    </div>
-                </div>
-
-                <% }) %>
-
-        </div>
+<div class="container my-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+        <h2 class="fw-bold text-dark mb-0">
+            <i class="fa-solid fa-magnifying-glass text-danger me-2"></i>Search Results
+        </h2>
+        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6">
+            <%= listings ? listings.length : 0 %> Stays Found
+        </span>
     </div>
 
-    <script>
-        document.querySelectorAll(".wishlist-heart").forEach(icon => {
-            icon.addEventListener("click", async (e) => {
-                e.stopPropagation();
-                e.preventDefault();
+    <div class="row row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1 g-4 mt-1">
+        <% if (!listings || listings.length === 0) { %>
+            <div class="col-12 text-center py-5">
+                <div class="card p-5 border-0 shadow-sm rounded-4 bg-white text-center">
+                    <i class="fa-solid fa-circle-question display-1 text-muted opacity-50 mb-3"></i>
+                    <h4 class="fw-bold text-dark">No matching stays found</h4>
+                    <p class="text-muted">Try searching for a different city, country, or keyword.</p>
+                    <div class="mt-3">
+                        <a href="/listings" class="btn btn-danger rounded-pill px-4 py-2 fw-semibold">
+                            <i class="fa-solid fa-compass me-2"></i>Explore All Stays
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <% listings.forEach(listing => { 
+                if (!listing) return;
+            %>
+                <div class="col mb-4">
+                    <%- include('../includes/listingCard', { listing }) %>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+</div>
 
-                const id = icon.dataset.id;
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+<script>
+    document.querySelectorAll(".wishlist-heart").forEach(icon => {
+        icon.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
 
-                await fetch(`/wishlist/toggle/${id}`, { 
-                    method: "POST",
-                    headers: { "X-CSRF-Token": csrfToken }
-                });
+            const id = icon.dataset.id;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-                icon.classList.toggle("fa-solid");
-                icon.classList.toggle("fa-regular");
-                icon.classList.toggle("saved");
+            await fetch(`/wishlist/toggle/${id}`, { 
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken,
+                    "X-Requested-With": "XMLHttpRequest"
+                }
             });
+
+            icon.classList.toggle("fa-solid");
+            icon.classList.toggle("fa-regular");
+            icon.classList.toggle("saved");
         });
-    </script>
+    });
+</script>
